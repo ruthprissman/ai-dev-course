@@ -5,20 +5,24 @@
 
 ## Skills
 
-| Skill | מה הוא עושה | שיעור |
-|---|---|---|
-| [`idea-analysis`](skills/idea-analysis/SKILL.md) | מראיין אתכן על הרעיון לפרויקט, שאלה אחת בכל פעם, וכותב אפיון של עמוד אחד ב-`docs/idea.md` | 1 |
+| Skill | מה הוא עושה | מתי | ZIP |
+|---|---|---|---|
+| [`idea-analysis`](skills/idea-analysis/SKILL.md) | מראיין אתכן על הרעיון לפרויקט, שאלה אחת בכל פעם, וכותב אפיון של עמוד אחד ב-`docs/idea.md` | ההכנה לקורס | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/idea-analysis.zip) |
+| [`plan-my-system`](skills/plan-my-system/SKILL.md) | קורא את הטקסט שכתבתן על העסק, בתיקייה שבה אתן עובדות, ומראיין אתכן בתשעה שלבים לתכנון המערכת. שומר הכול ב-`תכנון המערכת.md` | אחרי מפגש 1 | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/plan-my-system.zip) |
 
 ## איך מתקינים Skill
 
 קודם קוראות אותו: לוחצות על השם בטבלה וקוראות את הקובץ. Skill הוא הוראות שהבינה מבצעת, ולכן לא מתקינים Skill בלי לקרוא אותו.
 
-אחר כך, בתיקיית הפרויקט שלכן, כותבות ל-Claude Code:
+**ב-Claude Code**, בתיקיית הפרויקט שלכן, כותבות (ומחליפות את השם בשם ה-Skill):
 
-> תתקין לי את ה-Skill בשם idea-analysis מהמאגר https://github.com/ruthprissman/ai-dev-course לתוך התיקייה .claude/skills של הפרויקט הזה.
+> תתקין לי את הסקיל plan-my-system מהמאגר https://github.com/ruthprissman/ai-dev-course לתיקיית הסקילים האישית שלי. קודם תקרא את הקבצים שלו, ותגיד לי בקצרה מה הוא עושה. לפני שאתה מעתיק, תחכה לאישור שלי.
 
-Claude Code יבקש אישור לכתוב בתיקייה `.claude`. מאשרות. אחרי ההתקנה פותחות שיחה חדשה, וכותבות `/idea-analysis`.
+אחרי ההתקנה פותחות שיחה חדשה, וכותבות את שם ה-Skill אחרי לוכסן, למשל `/plan-my-system`, או פשוט מבקשות: "אני רוצה לתכנן את המערכת שאני בונה לעסק [שם העסק]".
+
+**באתר של Claude**: מורידות את קובץ ה-ZIP מהטבלה, ומעלות אותו כמו שהוא ב-Customize › Skills.
 
 ## דוגמאות
 
-- [`examples/tik-chodshi/idea.md`](examples/tik-chodshi/idea.md): האפיון של "תיק חודשי", מערכת למנהלת חשבונות שאוספת מסמכים מהלקוחות שלה. זו הדוגמה שמלווה את הקורס. כל הנתונים בה מומצאים.
+- [`examples/tik-chodshi/idea.md`](examples/tik-chodshi/idea.md): האפיון של "תיק חודשי", מערכת למנהלת חשבונות שאוספת מסמכים מהלקוחות שלה. כל הנתונים בה מומצאים.
+- [`skills/plan-my-system/example.md`](skills/plan-my-system/example.md): תכנון מלא של "אופק", CRM לעסק בדוי של ייעוץ וליווי לעסקים. זו הדוגמה שמלווה את הקורס.
