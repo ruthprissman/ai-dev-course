@@ -9,6 +9,7 @@
 |---|---|---|---|
 | [`idea-analysis`](skills/idea-analysis/SKILL.md) | מראיין אתכן על הרעיון לפרויקט, שאלה אחת בכל פעם, וכותב אפיון של עמוד אחד ב-`docs/idea.md` | ההכנה לקורס | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/idea-analysis.zip) |
 | [`plan-my-system`](skills/plan-my-system/SKILL.md) | קורא את הטקסט שכתבתן על העסק, בתיקייה שבה אתן עובדות, ומראיין אתכן בתשעה שלבים לתכנון המערכת. שומר הכול ב-`תכנון המערכת.md` | אחרי מפגש 1 | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/plan-my-system.zip) |
+| [`build-my-system`](skills/build-my-system/SKILL.md) | סקיל המערכת שלנו: מלווה את הפרויקט וגדל בכל מפגש. היום: עובד לפי התכנון, בונה את מערכת המסכים ב-React (בודק איתך, מציע תוכנית, ורק אז בונה), ושומר גרסאות ב-GitHub | מפגש 2, לתיקיית הסקילים של הפרויקט | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/build-my-system.zip) |
 
 ## איך מתקינים Skill
 
@@ -17,6 +18,8 @@
 **ב-Claude Code**, בתיקיית הפרויקט שלכן, כותבות (ומחליפות את השם בשם ה-Skill):
 
 > תתקין לי את הסקיל plan-my-system מהמאגר https://github.com/ruthprissman/ai-dev-course לתיקיית הסקילים האישית שלי. קודם תקרא את הקבצים שלו, ותגיד לי בקצרה מה הוא עושה. לפני שאתה מעתיק, תחכה לאישור שלי.
+
+את `build-my-system` מתקינות לתיקיית הסקילים של הפרויקט (`.claude/skills`), ולא לתיקייה האישית, כדי שיישמר עם הפרויקט בגרסאות. הבקשה המלאה נמצאת בדף הפרומפטים של מפגש 2 (P-03).
 
 אחרי ההתקנה פותחות שיחה חדשה, וכותבות את שם ה-Skill אחרי לוכסן, למשל `/plan-my-system`, או פשוט מבקשות: "אני רוצה לתכנן את המערכת שאני בונה לעסק [שם העסק]".
 
