@@ -9,7 +9,7 @@
 |---|---|---|---|
 | [`idea-analysis`](skills/idea-analysis/SKILL.md) | מראיין אתכן על הרעיון לפרויקט, שאלה אחת בכל פעם, וכותב אפיון של עמוד אחד ב-`docs/idea.md` | ההכנה לקורס | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/idea-analysis.zip) |
 | [`plan-my-system`](skills/plan-my-system/SKILL.md) | קורא את הטקסט שכתבתן על העסק, בתיקייה שבה אתן עובדות, ומראיין אתכן בתשעה שלבים לתכנון המערכת. שומר הכול ב-`תכנון המערכת.md` | אחרי מפגש 1 | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/plan-my-system.zip) |
-| [`build-my-system`](skills/build-my-system/SKILL.md) | סקיל המערכת שלנו: מלווה את הפרויקט וגדל בכל מפגש. היום: עובד לפי התכנון, בונה את מערכת המסכים ב-React (בודק איתך, מציע תוכנית, ורק אז בונה), ושומר גרסאות ב-GitHub | מפגש 2, לתיקיית הסקילים של הפרויקט | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/build-my-system.zip) |
+| [`build-my-system`](skills/build-my-system/SKILL.md) | סקיל המערכת שלנו: מלווה את הפרויקט וגדל בכל מפגש. היום: עובד לפי התכנון, משרטט אפיון ויזואלי של כל המסכים בקובץ HTML אחד (בודק איתך, מציע תוכנית, ורק אז כותב), ושומר גרסאות ב-GitHub | מפגש 2, לתיקיית הסקילים של הפרויקט | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/build-my-system.zip) |
 
 ## איך מתקינים Skill
 
