@@ -1,0 +1,92 @@
+name: שומרת על המידע
+
+# כל לילה, פעולה אחת שעושה שלושה דברים:
+#   1. דופק: כותבת שורה קטנה במסד, כדי שפרויקט Supabase החינמי לא יירדם (נרדם אחרי שבוע בלי שימוש).
+#   2. גיבוי: מעתיקה את כל הטבלאות, המבנה והמידע, לקובץ שנשמר כאן ב־GitHub (Actions › הריצה › Artifacts).
+#   3. GitHub לא מכבה את הפעולה: אם לא נשמרה גרסה 50 יום, נשמרת גרסה ריקה.
+#
+# הסוד היחיד: SUPABASE_DB_PASSWORD, ב־Settings › Secrets and variables › Actions.
+# הכתובת והמשתמש אינם סוד. הם נכתבים כאן מתוך הפרויקט.
+
+on:
+  schedule:
+    - cron: "17 1 * * *" # כל לילה, בערך 03:17 או 04:17 שעון ישראל
+  workflow_dispatch: {} # הרצה ידנית מלשונית Actions
+
+permissions:
+  contents: write # בשביל הגרסה הריקה של סעיף 3
+
+concurrency:
+  group: keep-my-data
+  cancel-in-progress: false
+
+jobs:
+  keep:
+    # גרסה נעולה ולא ubuntu-latest: כלי הגיבוי 17 מותקנים ממאגר שמתעדכן אחרי כל גרסה חדשה של אובונטו.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      # Session pooler, פורט 5432. לא 6543, ולא Direct connection (שעובד רק ב־IPv6, ו־GitHub לא מגיע אליו).
+      PGHOST: __POOLER_HOST__
+      PGPORT: "5432"
+      PGUSER: postgres.__PROJECT_REF__
+      PGDATABASE: postgres
+      PGSSLMODE: require
+      PGPASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      PG17: /usr/lib/postgresql/17/bin
+    steps:
+      - uses: actions/checkout@v7
+
+      # המסד ב־Supabase הוא גרסה 17, והכלים שמגיעים עם GitHub הם 16, שמסרבים לגבות ממנו.
+      # לכן מתקינים 17, ומשתמשים בנתיב המלא שלו ($PG17), כי pg_dump הרגיל ממשיך להצביע על 16.
+      - name: Install PostgreSQL 17 client
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSL https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+            -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          "$PG17/pg_dump" --version
+
+      - name: Heartbeat, so the free project stays awake
+        run: |
+          "$PG17/psql" -v ON_ERROR_STOP=1 -q <<'SQL'
+          create table if not exists public.keep_alive (
+            id smallint primary key default 1 check (id = 1),
+            pinged_at timestamptz not null default now()
+          );
+          alter table public.keep_alive enable row level security;
+          insert into public.keep_alive (id, pinged_at) values (1, now())
+            on conflict (id) do update set pinged_at = excluded.pinged_at;
+          SQL
+          echo "heartbeat written at $(date -u)"
+
+      - name: Backup, structure and data
+        run: |
+          mkdir -p backup
+          FILE="backup/backup-$(date -u +%Y-%m-%d).sql"
+          "$PG17/pg_dump" --schema=public --no-owner --file "$FILE"
+          echo "tables: $(grep -c '^CREATE TABLE' "$FILE")"
+          echo "tables with data: $(grep -c '^COPY ' "$FILE")"
+          gzip "$FILE"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: backup-${{ github.run_number }}
+          path: backup/
+          retention-days: 30
+          if-no-files-found: error
+
+      - name: Keep GitHub from switching this off
+        run: |
+          LAST=$(git log -1 --format=%ct)
+          AGE_DAYS=$(( ( $(date -u +%s) - LAST ) / 86400 ))
+          echo "last version saved $AGE_DAYS day(s) ago"
+          if [ "$AGE_DAYS" -ge 50 ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit --allow-empty -m "keepalive: מונע מ־GitHub לכבות את הגיבוי"
+            git push
+          fi
