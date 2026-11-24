@@ -1,0 +1,50 @@
+name: Keep Supabase Alive
+
+# מונע הקפאה של פרויקט Supabase חינמי — פותר שתי בעיות:
+#   1. Supabase מקפיא אחרי ~7 ימים ללא פעילות DB → כותבים שורת heartbeat אמיתית.
+#   2. GitHub משבית scheduled workflow אחרי 60 יום ללא קומיט → דוחפים empty-commit
+#      קטן כשהרפו שקט (רק קומיטים מאפסים את הטיימר של GitHub).
+#
+# דורש שני GitHub Secrets: SUPABASE_URL ו-SUPABASE_SERVICE_ROLE_KEY.
+
+on:
+  schedule:
+    - cron: '0 8 */3 * *'  # כל 3 ימים בשעה 8:00 UTC (מרווח בטוח מתחת ל-7 ימים)
+  workflow_dispatch:
+
+permissions:
+  contents: write            # נדרש כדי לדחוף את ה-keepalive commit
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Write DB heartbeat (real database activity)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          curl -sf -X POST "$SUPABASE_URL/rest/v1/keep_alive?on_conflict=id" \
+            -H "apikey: $SERVICE_KEY" \
+            -H "Authorization: Bearer $SERVICE_KEY" \
+            -H "Content-Type: application/json" \
+            -H "Prefer: resolution=merge-duplicates,return=minimal" \
+            -d "{\"id\":1,\"pinged_at\":\"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}"
+          echo "✅ DB heartbeat written at $(date -u)"
+
+      - name: Prevent 60-day scheduled-workflow auto-disable
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          LAST=$(git log -1 --format=%ct)
+          AGE_DAYS=$(( ( $(date -u +%s) - LAST ) / 86400 ))
+          echo "Last commit was $AGE_DAYS day(s) ago"
+          if [ "$AGE_DAYS" -ge 50 ]; then
+            echo "Repo has been quiet — pushing a keepalive commit"
+            git commit --allow-empty -m "chore: keepalive (prevent scheduled-workflow auto-disable)"
+            git push
+          else
+            echo "Recent commit exists — no keepalive commit needed"
+          fi
