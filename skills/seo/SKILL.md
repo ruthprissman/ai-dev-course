@@ -15,7 +15,7 @@ description: רושם את המערכת בגוגל, ומכין את הדפים �
 - **כמה זמן:** גוגל סורקת דפים חדשים בדרך כלל בתוך כמה ימים עד כמה שבועות, ובקשה להוספה לא מבטיחה הוספה. (נבדק במסמך הרשמי, 19.11.2026: https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl ו־https://support.google.com/webmasters/answer/9012289)
 
 ארבעה שלבים:
-1. **שלב א, האתר קריא:** כותרת ותיאור לכל דף ציבורי, robots.txt, מפת אתר, llms.txt, וסימון "לא לחיפוש" על כל המסכים הפנימיים.
+1. **שלב א, האתר קריא:** כותרת ותיאור לכל דף ציבורי, קובץ מוכן מראש לכל אחד, robots.txt, מפת אתר, llms.txt, וסימון "לא לחיפוש" על כל המסכים הפנימיים.
 2. **שלב ב, רישום בגוגל:** Search Console, קובץ אימות, מפת האתר, ובקשה להוסיף את דף האודות.
 3. **שלב ג, מנועי הבינה ו־Bing:** ייבוא מ־Search Console ל־Bing, והודעה ב־IndexNow.
 4. **שלב ד, בדיקה:** מה Claude בודק באינטרנט, ומה רואים ב־Search Console עכשיו ובעוד שבוע.
@@ -50,6 +50,7 @@ description: רושם את המערכת בגוגל, ומכין את הדפים �
 | SEO | כל מה שעוזר לגוגל ולמנועי הבינה למצוא את הדפים הציבוריים שלך, ולהבין אותם |
 | מנועי הבינה | כלים כמו ChatGPT, Claude ו־Gemini, שעונים על שאלות, ולפעמים קוראים אתרים כדי לענות |
 | סורק | התוכנה של גוגל, של Bing או של מנוע בינה, שעוברת בין דפים באינטרנט וקוראת אותם |
+| בנייה מראש (prerender) | בכל בנייה, המערכת שומרת לכל דף ציבורי קובץ מוכן עם הטקסט שלו, כדי שגם סורק שלא מריץ קוד יקרא אותו |
 | האינדקס של גוגל | הרשימה של גוגל. רק דף שנמצא בה יכול להופיע בחיפוש |
 | Search Console | הכלי החינמי של גוגל שבו רושמים אתר, מראים שהוא שלך, ורואים מה גוגל יודעת עליו |
 | נכס | האתר שלך, כמו שהוא רשום ב־Search Console: הכתובת המלאה שלו |
@@ -86,7 +87,7 @@ Vercel מעלה לייצור רק את `main`. לכן כל בדיקה באינט
    - `CLAUDE.md`, אם יש.
    - **דף האודות:** הקובץ של הדף (בדרך כלל `app/src/pages/AboutPage.tsx`), התגיות ב־`app/index.html` (`title`, `description`, תגיות ה־`og:`, ותגית `robots` או `googlebot` אם יש), ובלוק הנתונים המובנים בדף.
    - הדפים המשפטיים והצהרת הנגישות, אם יש: תאריך העדכון בכל דף.
-   - קובץ הנתב, או המקום בקוד שבוחר דף לפי הכתובת (בדרך כלל `app/src/App.tsx`): אילו כתובות ציבוריות, ואילו מסכים פנימיים.
+   - קובץ הנתב, או המקום בקוד שבוחר דף לפי הכתובת (בדרך כלל `app/src/App.tsx`): אילו כתובות ציבוריות, ואילו מסכים פנימיים. ואם כבר יש `app/src/public-pages.tsx` (שלב א, צעד 2), גם הכתובות שבו: משם הנתב מקבל את הדפים הציבוריים.
    - התיקייה `app/public`, והקובץ `app/vercel.json`: יש בו כבר כלל עם `X-Robots-Tag`?
    - התיקייה `.github/workflows`: יש בה `backup.yml`? אז הגיבוי לדרייב כבר הוקם, והאפליקציה בגוגל כבר פתוחה, בחשבון גוגל מסוים (שלב ב).
    - **מה נכנס לטיוטה:** תגית `canonical` ב־`app/index.html`, תגית `robots` או `googlebot` עם noindex ב־`app/index.html`, או כלל ישן ב־`vercel.json` שנותן `X-Robots-Tag` גם לדף ציבורי. כל אחד מהם מקבל שורה בטיוטה (שלב א, צעד 1). (גוגל: דף שרוצים בחיפוש, בלי noindex בקוד המקורי שלו. נבדק במסמך הרשמי, 19.11.2026: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics)
@@ -95,7 +96,7 @@ Vercel מעלה לייצור רק את `main`. לכן כל בדיקה באינט
    - **המערכת עוד לא באינטרנט:** עוצרים. אומרים לה במשפט שאת האתר רושמים בגוגל רק כשהוא באינטרנט. ונותנים לה בקשה לפעם הבאה: «כשהמערכת באינטרנט, כתבי לי: "נרשום את האתר בגוגל".»
    - **בתגיות של דף האודות או בנתונים המובנים כתובה כתובת אחרת,** `localhost` או כתובת מנוחשת: את זה מתקן הסקיל about-page. אומרים לה במשפט מה מצאת, ומציעים לתקן עכשיו, איתו. ממשיכים אחרי התיקון.
 3. **אילו דפים ציבוריים יש:**
-   - קודם בקוד: כתובת ציבורית היא כתובת ברמה העליונה של הנתב, לפני כל בדיקת כניסה ומחוץ למסגרת של המסכים הפנימיים, כמו שהסקילים about-page ו־legal-pages בונים.
+   - קודם בקוד: כתובת ציבורית היא כתובת ברמה העליונה של הנתב, לפני כל בדיקת כניסה ומחוץ למסגרת של המסכים הפנימיים, כמו שהסקילים about-page ו־legal-pages בונים, או כתובת ב־`PUBLIC_PAGES`, שב־`app/src/public-pages.tsx`.
    - אחר כך באינטרנט, ב־Playwright, בחלון שלא מחובר למערכת: כל דף ציבורי נפתח עם הטקסט שלו, ולא מסך כניסה.
    - **תשובה 200 לא מוכיחה שדף קיים.** במערכת של הקורס, הכלל ב־`vercel.json` מפנה כל כתובת לאפליקציה, ולכן גם כתובת שאין בה כלום מחזירה 200. (נבדק ב־19.11.2026 באתר הדמו של הקורס, בקריאה בלבד: `/nonexistent-xyz`, וגם `/robots.txt` כשעוד אין קובץ כזה, החזירו 200 עם דף האפליקציה.) ההוכחה היא הטקסט של הדף.
    - **404 על דף שקיים בקוד:** זה לא דף חסר, ולא מפעילים שוב את הסקיל שבנה אותו. בודקים לפי הסדר, כמו בסקיל backup-and-keep-alive: יש `vercel.json` עם `rewrites` בתיקייה ש־Vercel בונה ממנה (בדרך כלל `app`)? הגרסה החדשה עלתה? הבנייה ב־Vercel נכשלה? מתקנים אחרי שהיא מאשרת, בענף `fix/seo`, מעלים לפי "ענפים", ואחרי "מיזגתי" בודקים שוב.
@@ -107,7 +108,8 @@ Vercel מעלה לייצור רק את `main`. לכן כל בדיקה באינט
    - **ענף ו־Pull Request:** בודקים באיזה ענף אנחנו, ואם נשאר ענף של הסקיל הזה (השמות ב"ענפים"). יש? בודקים את ה־Pull Request שלו: `gh pr list --state all --head <הענף>`. אין Pull Request? ממשיכים לפי "ענפים", צעדים 2 ו־3. פתוח, והיא עוד לא מיזגה? נותנים לה שוב את הקישור, ומחכים ל"מיזגתי". מוזג? ממשיכים לפי "ענפים", צעד 4.
    - ב־`app/public`: `robots.txt`, `sitemap.xml`, `llms.txt`, קובץ מפתח של IndexNow, וקובץ אימות של גוגל (`google….html`).
    - ב־`app/vercel.json`: הכלל של "לא לחיפוש" (`X-Robots-Tag`).
-   - **הרשימה מול הנתב:** משווים את הרשימה שבכלל של "לא לחיפוש" ואת הכתובות ב־`sitemap.xml` לכתובות הציבוריות שבנתב היום. גם הדפים של שלב ה, מהקובץ `app/src/content/search-pages.ts`, הם כתובות ציבוריות, ובודקים אותם באותה צורה (שלב ה, צעד 5, סעיף 1). נוסף דף ציבורי אחרי הריצה הקודמת, למשל מדיניות פרטיות מהסקיל legal-pages? אומרים לה במשפט, ואחרי שהיא מאשרת: מוסיפים אותו לרשימה שבכלל ולמפת האתר, עם התאריך שלו (שלב א, צעדים 5 ו־8), נותנים לו כותרת ותיאור משלו (צעד 2), בענף `feature/seo`, מעלים לפי "ענפים", ואחרי "מיזגתי" בודקים באינטרנט (צעד 10), ושולחים את הכתובת ל־IndexNow (שלב ג, צעד 2).
+   - הבנייה מראש: `app/src/public-pages.tsx`, `app/src/PublicPageMeta.tsx`, `app/src/entry-server.tsx`, `app/scripts/prerender.mjs`, והפקודה `build` ב־`app/package.json` (שלב א, צעד 2). אין? בונים אותה בשלב א, צעד 2, גם כששאר שלב א כבר נעשה, בענף `feature/seo`.
+   - **הרשימה מול הנתב:** משווים את `PUBLIC_PAGES` (`app/src/public-pages.tsx`), את הרשימה שבכלל של "לא לחיפוש" ואת הכתובות ב־`sitemap.xml` לכתובות הציבוריות שבנתב היום. גם הדפים של שלב ה, מהקובץ `app/src/content/search-pages.ts`, הם כתובות ציבוריות, ובודקים אותם באותה צורה (שלב ה, צעד 5, סעיף 1). נוסף דף ציבורי אחרי הריצה הקודמת, למשל מדיניות פרטיות מהסקיל legal-pages? הסקילים האלה מוסיפים `<Route>` ישר לנתב, ולכן הדף לא נבנה מראש. אומרים לה במשפט, ואחרי שהיא מאשרת: מעבירים אותו מהנתב ל־`PUBLIC_PAGES`, עם כותרת ותיאור משלו (צעד 2), מוסיפים אותו לרשימה שבכלל ולמפת האתר, עם התאריך שלו (שלב א, צעדים 5 ו־8), בענף `feature/seo`, מעלים לפי "ענפים", ואחרי "מיזגתי" בודקים באינטרנט (צעד 10), ושולחים את הכתובת ל־IndexNow (שלב ג, צעד 2).
    - ב־Search Console, אחרי שהיא מחוברת: הנכס כבר קיים? מאומת? מפת האתר נשלחה?
    - **דף האודות, בכל הרצה חוזרת:** **Claude** בודק את `https://<הדומיין>/about` בבדיקת הדף של Search Console (שלב ב, צעד 6). כתוב בפרטים "כתובת האתר לא ידועה ל-Google"? מבקשים פעם אחת. המצב הזה לא מבדיל בין בקשה שגוגל לא קיבלה, למשל בגלל המכסה היומית, לבין בקשה שהתקבלה, וגוגל עוד לא סרקה את הדף. לכן לא אומרים לה שהבקשה הקודמת לא התקבלה. כתוב שם משהו אחר? גוגל כבר מכירה את הדף, ולא מבקשים שוב. הבקשה הזו קיבלה "חרגת מהמכסה"? אומרים לה רק את ההודעה, כמו בשלב ב, צעד 6, סעיף 4, ואחריה «מחר כתבי לי: "נבקש שוב מגוגל להוסיף את דף האודות".», בלי לומר משהו על הבקשה הקודמת. כך גם כשהיא כותבת "נבקש שוב מגוגל להוסיף את דף האודות". (בקשה חוזרת ביום שאחרי, ומה כתוב בבדיקה אחרי בקשה שהתקבלה: לא נבדק עדיין בהרצה.)
    - ב־Bing Webmaster Tools: האתר כבר ברשימה?
@@ -115,7 +117,7 @@ Vercel מעלה לייצור רק את `main`. לכן כל בדיקה באינט
 6. **Playwright מחובר?** בלעדיו אי אפשר לעבוד בשבילה ב־Search Console. לא מחובר: אומרים לה במשפט מה הוא, ושהיא יכולה לבקש: "תתקין לי MCP של Playwright ותפתח דפדפן". אחרי ההתקנה: "פתחי שיחה חדשה, וכתבי: נמשיך את הרישום בגוגל." Playwright נטען רק בשיחה חדשה.
 7. **אין עדיין כניסה במערכת?** אומרים לה פעם אחת: "המסכים הפנימיים יסומנו 'לא לחיפוש', אבל זה לא נועל אותם. מה שנועל אותם הוא הכניסה עם גוגל." (גוגל: כדי להוציא דף מהחיפוש, noindex. כדי לנעול אותו, הגנה בסיסמה. נבדק במסמך הרשמי, 19.11.2026: https://developers.google.com/search/docs/crawling-indexing/robots/intro)
 8. **אומרים בשלוש שורות מה הולך לקרות,** ומחכים לאישור. ההודעה הזו היא גם הפתיחה של שלב א: אחרי האישור ממשיכים ישר לטיוטה.
-   - "קודם אכין את הדפים הציבוריים לגוגל: כותרת ותיאור לכל דף, מפת אתר וקובץ למנועי הבינה, וסימון 'לא לחיפוש' על המסכים הפנימיים. אראה לך את הטקסטים לפני שהם עולים."
+   - "קודם אכין את הדפים הציבוריים לגוגל: כותרת ותיאור לכל דף, קובץ מוכן מראש לכל דף, בשביל סורקים שלא מריצים קוד, מפת אתר וקובץ למנועי הבינה, וסימון 'לא לחיפוש' על המסכים הפנימיים. אראה לך את הטקסטים לפני שהם עולים."
    - "אחר כך נרשום את האתר ב־Search Console, בחשבון הגוגל שלך. את מתחברת ומאשרת כשצריך, ואני עושה את השאר בדפדפן."
    - "בסוף נוסיף את Bing, ואבדוק שהכול עובד באינטרנט."
 
@@ -123,7 +125,7 @@ Vercel מעלה לייצור רק את `main`. לכן כל בדיקה באינט
 
 מה אומרים לה, כשממשיכים לשלב הזה בשיחה חדשה (בהתחלה, ההודעה של "לפני שמתחילים", סעיף 8, היא הפתיחה): "בשלב הזה אני מכין את הדפים הציבוריים לגוגל ולמנועי הבינה, ומסמן את המסכים הפנימיים 'לא לחיפוש'. ממך צריך רק אישור לטקסטים."
 
-**הדפים נבנים בדפדפן.** הדפים של המערכת נכתבים בדפדפן, אחרי שהקוד רץ. גוגל מריצה את הקוד וקוראת את הדף כמו שהוא נראה, כולל כותרת ותיאור שהדף עצמו כותב. אבל לא כל הסורקים מריצים קוד. (נבדק במסמך הרשמי, 19.11.2026: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics) סורק שלא מריץ קוד רואה בכל כתובת רק את מה שב־`app/index.html`, בלי הטקסט של הדפים. (לפי ai-seo: תוכן שמופיע רק אחרי שהקוד רץ, סוכנים עלולים לראות כדף ריק.) `llms.txt` נותן להם את עיקר הטקסט של דף האודות, אבל רק לסורק שקורא אותו. הוא לא מחליף את הדף. (llms.txt הוא הצעה, לא תקן, ואף מנוע לא כתוב שם כמי שקורא אותו לבד: נבדק ב־https://llmstxt.org, 19.11.2026. לפי ai-seo, מנועי בינה שאינם גוגל קוראים אותו כשהוא קיים. וגוגל כותבת שהחיפוש שלה מתעלם ממנו: נבדק במסמך הרשמי, 24.11.2026, https://developers.google.com/search/docs/fundamentals/ai-optimization-guide)
+**הדפים הציבוריים בנויים מראש.** בלי בנייה מראש, הדפים של המערכת נכתבים בדפדפן, רק אחרי שהקוד רץ. גוגל מריצה את הקוד וקוראת את הדף כמו שהוא נראה, אבל לא כל הסורקים מריצים קוד. (נבדק במסמך הרשמי, 19.11.2026: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics) סורק שלא מריץ קוד רואה בכתובת כזו רק את מה שב־`app/index.html`, בלי הטקסט של הדף. (לפי ai-seo: תוכן שמופיע רק אחרי שהקוד רץ, סוכנים עלולים לראות כדף ריק.) לכן בצעד 2 כל דף ציבורי מקבל קובץ מוכן מראש, עם הטקסט שלו, השם, התיאור והנתונים המובנים, וגם סורק שלא מריץ קוד קורא אותו. המסכים הפנימיים לא נבנים מראש. `llms.txt` מרכז את עיקר הטקסט של הדפים הציבוריים בשביל סורק שקורא אותו. הוא לא מחליף את הדפים. (llms.txt הוא הצעה, לא תקן, ואף מנוע לא כתוב שם כמי שקורא אותו לבד: נבדק ב־https://llmstxt.org, 19.11.2026. לפי ai-seo, מנועי בינה שאינם גוגל קוראים אותו כשהוא קיים. וגוגל כותבת שהחיפוש שלה מתעלם ממנו: נבדק במסמך הרשמי, 24.11.2026, https://developers.google.com/search/docs/fundamentals/ai-optimization-guide)
 
 ### צעד 1: טיוטה של הטקסטים
 
@@ -142,14 +144,372 @@ Vercel מעלה לייצור רק את `main`. לכן כל בדיקה באינט
 
 ומחכים לאישור. האישור הזה הוא גם האישור לשינויים שבסעיף 3. תיקנה משהו? מראים שוב את מה שהשתנה, ומחכים. רק אחרי האישור בונים.
 
-### צעד 2: כותרת ותיאור בכל דף
+### צעד 2: כל דף ציבורי: כותרת, תיאור, וקובץ מוכן מראש
 
-- כל דף ציבורי, חוץ מ־`/about`, כותב את הכותרת ואת התיאור שלו כשהוא נפתח, וכשיוצאים ממנו מחזיר את אלה שב־`app/index.html`. (גוגל: מותר לכתוב את הכותרת ואת התיאור מהקוד. נבדק במסמך הרשמי, 19.11.2026: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics)
-- **איך, בלי ספרייה:** כשהדף נפתח, משנים את `document.title`, ואת ה־`content` של תגית ה־`meta[name="description"]` האחת שכבר יש ב־`app/index.html`. שומרים את הערכים הקודמים, ומחזירים אותם כשיוצאים מהדף.
-  - לא כותבים `<title>` או `<meta>` בתוך ה־JSX של הדף, ולא מוסיפים תגית description שנייה. React שם `<title>` כזה ב־head, ליד זה שכבר יש, ואז בדף יש שתי כותרות. (React: כשיש יותר מ־`<title>` אחד, ההתנהגות של דפדפנים ושל מנועי חיפוש לא מוגדרת. נבדק במסמך הרשמי, 19.11.2026: https://react.dev/reference/react-dom/components/title. נבדק גם בהרצה של React 19 על דף לדוגמה, ולא באתר חי, 19.11.2026: `<title>` ו־`<meta name="description">` בתוך הדף השאירו ב־head שתי כותרות ושני תיאורים, והתיאור של דף האודות היה הראשון.)
-- יש בפרויקט ספרייה שמנהלת את ה־head (כמו react-helmet)? עובדים דרכה, ובודקים גם איתה שלא נשארו לידה התגיות של `app/index.html`: בסוף יש כותרת אחת ותיאור אחד. אין ספרייה? לא מוסיפים ספרייה חדשה, כמו בסקיל about-page.
-- **ב־`app/index.html` אין שום דבר שמתאים רק לדף אחד:** לא noindex ולא `canonical`. הקובץ הזה נשלח לכל הכתובות, ולכן תגית כזו תחול על כולן. יש שם `canonical`, או תגית `robots` או `googlebot` עם noindex? מורידים אותה אחרי שהיא אישרה את הטיוטה (צעד 1, סעיף 3).
+**מה זה, ולמה.** הדפים של המערכת נכתבים בדפדפן, רק אחרי שהקוד רץ. גוגל מריצה את הקוד, אבל לא כל הסורקים מריצים קוד, וסורק כזה רואה בכל כתובת רק את `app/index.html`, בלי הטקסט של הדף. בנייה מראש (prerender) פותרת את זה: בכל בנייה של המערכת נשמר לכל דף ציבורי קובץ HTML מוכן, עם הטקסט של הדף, השם שלו בלשונית, התיאור שלו והנתונים המובנים שבו. כל דפדפן וכל סורק שמבקשים את הכתובת מקבלים קודם את הקובץ הזה, ואחר כך הקוד נטען, והדף ממשיך לעבוד כרגיל. המסכים הפנימיים לא נבנים מראש, וממשיכים לקבל את `app/index.html`, כמו היום. (גוגל: "server-side or pre-rendering is still a great idea", כי "not all bots can run JavaScript". נבדק במסמך הרשמי, 24.11.2026: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics. כך גם באתר של רות, ב־`scripts/prerender.mjs`.)
+
+אומרים לה, במשפט מ"משפט לכל מונח": "בנייה מראש: בכל בנייה, המערכת שומרת לכל דף ציבורי קובץ מוכן עם הטקסט שלו, כדי שגם סורק שלא מריץ קוד יקרא אותו." לא מראים לה קוד, ולא שואלים אותה על זה: היא אישרה את השלב.
+
+**בלי ספרייה חדשה.** הכול נבנה ממה שכבר בפרויקט: הבנייה לשרת של Vite (`vite build --ssr`), `prerenderToNodeStream` של `react-dom/static`, ו־`StaticRouter` של `react-router-dom`. (נבדק במסמכים הרשמיים, 24.11.2026: https://vite.dev/guide/ssr, בחלקים "Building for Production" ו־"Pre-Rendering / SSG". https://react.dev/reference/react-dom/static/prerenderToNodeStream: מחכה שכל הדף ייטען, כולל Suspense ו־`lazy`, ולכן לא `renderToString`. https://reactrouter.com/api/declarative-routers/StaticRouter: נתב שעומד בכתובת אחת, בשביל השרת. הדף מפנה למסמך של גרסה 8, ולכן גם הורץ: עם react-router-dom 7.18.5, 24.11.2026.)
+
+#### 1. רשימה אחת של הדפים הציבוריים: `app/src/public-pages.tsx`
+
+מהרשימה הזו נבנים שלושה דברים: הכתובות בנתב, השם בלשונית והתיאור, והקבצים המוכנים. כל דף ציבורי שנמצא ב"לפני שמתחילים" (סעיף 3) נכנס אליה, עם השם והתיאור שהיא אישרה בטיוטה (צעד 1).
+
+```tsx
+import type { ReactNode } from 'react'
+import { AboutPage } from './pages/AboutPage.tsx'
+import { PrivacyPage } from './pages/PrivacyPage.tsx'
+import { TermsPage } from './pages/TermsPage.tsx'
+
+// הדפים הציבוריים (הסקיל seo). מהרשימה הזו נבנים הכתובות בנתב, השם בלשונית והתיאור לגוגל,
+// וגם קובץ HTML מוכן לכל דף, בזמן הבנייה (scripts/prerender.mjs).
+// דף ציבורי חדש נכנס לכאן, ולא ישר לנתב. מסך פנימי לא נכנס לכאן אף פעם.
+// הדפים עצמם לא מייבאים מהקובץ הזה.
+
+// הכתובת הקצרה של המערכת בייצור, בלי / בסוף.
+export const SITE_URL = 'https://<הדומיין>'
+
+// השם והתיאור שב־app/index.html, מילה במילה (מהסקיל about-page). הם גם של כל מסך פנימי.
+// הבנייה עוצרת אם הם שונים מ־app/index.html.
+export const SITE_META = {
+  title: '<ה־title שב־app/index.html>',
+  description: '<ה־description שב־app/index.html>',
+}
+
+export type PublicPage = {
+  path: string // הכתובת, כמו במפת האתר: אותיות a עד z, ספרות ומקפים, בלי / בסוף
+  title: string // השם בלשונית
+  description: string // התיאור לגוגל: משפט אחד, מתוך הדף
+  element: ReactNode // הדף עצמו
+}
+
+export const PUBLIC_PAGES: PublicPage[] = [
+  { path: '/about', ...SITE_META, element: <AboutPage /> },
+  {
+    path: '/privacy',
+    title: 'מדיניות פרטיות | <שם המערכת>',
+    description: '<משפט אחד, מתוך הדף>',
+    element: <PrivacyPage />,
+  },
+  {
+    path: '/terms',
+    title: 'תנאי שימוש | <שם המערכת>',
+    description: '<משפט אחד, מתוך הדף>',
+    element: <TermsPage />,
+  },
+]
+
+// הדף הציבורי של הכתובת, או undefined במסך פנימי. כמו הנתב: גם באותיות גדולות, וגם עם / בסוף.
+export function findPublicPage(pathname: string): PublicPage | undefined {
+  const path = pathname.toLowerCase().replace(/\/+$/, '') || '/'
+  return PUBLIC_PAGES.find((page) => page.path === path)
+}
+```
+
+- **רק הדפים שקיימים אצלה,** בשמות ובמקומות של הקבצים כמו אצלה. הצהרת הנגישות נכנסת באותה צורה (`/accessibility`).
+- **`SITE_URL`:** הכתובת הקצרה, בדיוק כמו בתגית `og:url` שב־`app/index.html` (בלי `/about` שבסופה). הבנייה עוצרת אם הן שונות.
+- **`SITE_META`:** ה־`<title>` וה־`description` שב־`app/index.html`, מילה במילה. **Claude** מעתיק אותם משם, ולא מנסח. הם של `/about`, כמו בטיוטה (צעד 1), וגם של כל מסך פנימי. הבנייה עוצרת אם הם שונים.
+- **`path`:** בדיוק כמו במפת האתר (צעד 5) וברשימה שבכלל (צעד 8). בלי אותיות גדולות, בלי נקודה, ובלי `/` בסוף.
+- **הדפים לא מייבאים מהקובץ הזה.** הוא מייבא אותם, ולכן ייבוא בכיוון ההפוך יוצר מעגל. דף שצריך את הכתובת, כמו בנתונים המובנים, כותב אותה אצלו, כמו `SITE_URL` שבדף האודות.
+
+#### 2. הנתב קורא מהרשימה: `app/src/App.tsx`
+
+```tsx
+import { PUBLIC_PAGES } from './public-pages.tsx'
+import { PublicPageMeta } from './PublicPageMeta.tsx'
+
+// ...
+      <BrowserRouter>
+        <PublicPageMeta />
+        <Routes>
+          {PUBLIC_PAGES.map((page) => (
+            <Route key={page.path} path={page.path} element={page.element} />
+          ))}
+
+          {/* המסכים הפנימיים, כמו קודם */}
+        </Routes>
+      </BrowserRouter>
+```
+
+- **ה־`<Route>` של כל דף ציבורי יוצא מהנתב,** יחד עם ה־`import` של הדף, ובמקומם השורות של הרשימה. באותו מקום שבו הם היו: ברמה העליונה, לפני כל בדיקת כניסה, ומחוץ למסגרת של המסכים הפנימיים, כמו בסקילים about-page ו־legal-pages.
+- **`<PublicPageMeta />`** בתוך `BrowserRouter`, לפני `<Routes>` (סעיף 3).
+- **`app/src/main.tsx` לא משתנה.** `createRoot` נשאר (סעיף 4.6).
+- **אין נתב** (כמו במערכת הדמו של הקורס): ברכיב העליון, לפני בדיקת הכניסה, `const publicPage = findPublicPage(window.location.pathname)`, ואם יש דף: `return publicPage.element`. במקום הבדיקה הישנה של `/about`, `/privacy` ו־`/terms`. בלי `PublicPageMeta`: בלי נתב, כל מעבר לכתובת טוען את הדף מחדש, והקובץ המוכן כבר מביא את השם והתיאור של הדף. המסכים הפנימיים מקבלים את אלה של `app/index.html`. לכן במחשב, ב־`npm run dev`, דף ציבורי מראה בלשונית את השם של `app/index.html`. את השם של הדף בודקים ב־`vite preview`, בכתובת עם `/` בסוף (סעיף 6.4). ובסעיף 4.1, הגרסה בלי נתב.
+
+#### 3. השם בלשונית והתיאור: `app/src/PublicPageMeta.tsx`
+
+הקובץ המוכן של כל דף כבר מביא את השם והתיאור שלו (סעיף 4). הרכיב הזה מעדכן אותם כשעוברים בין מסכים בלי לטעון את הדף מחדש: בדף ציבורי, השם והתיאור שלו מהרשימה. בכל מסך אחר, אלה של `app/index.html`.
+
+```tsx
+import { useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
+import { findPublicPage, SITE_META } from './public-pages.tsx'
+
+// השם בלשונית והתיאור לגוגל, בכל מעבר בין מסכים: של הדף הציבורי שפתוח, מ־public-pages.tsx,
+// ובכל מסך אחר אלה של app/index.html. משנה את התגיות שכבר יש, ולא מוסיף תגית.
+// את canonical לא משנים: הוא נכתב בבנייה, בקובץ של כל דף ציבורי.
+export function PublicPageMeta() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const meta = findPublicPage(pathname) ?? SITE_META
+    document.title = meta.title
+    document.querySelector('meta[name="description"]')?.setAttribute('content', meta.description)
+  }, [pathname])
+
+  return null
+}
+```
+
+- **השם והתיאור באים מהרשימה, ולא מהדף.** אין `usePageMeta` בכל דף, ואין עוד מקום שבו כתובים השם והתיאור. (גוגל: מותר לכתוב את הכותרת ואת התיאור מהקוד. נבדק במסמך הרשמי, 19.11.2026: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics)
+- **לא כותבים `<title>` או `<meta>` בתוך ה־JSX של הדף, ולא מוסיפים תגית description שנייה.** React שם `<title>` כזה ב־head, ליד זה שכבר יש, ואז בדף יש שתי כותרות. (React: כשיש יותר מ־`<title>` אחד, ההתנהגות של דפדפנים ושל מנועי חיפוש לא מוגדרת. נבדק במסמך הרשמי, 19.11.2026: https://react.dev/reference/react-dom/components/title. נבדק גם בהרצה של React 19 על דף לדוגמה, ולא באתר חי, 19.11.2026: `<title>` ו־`<meta name="description">` בתוך הדף השאירו ב־head שתי כותרות ושני תיאורים, והתיאור של דף האודות היה הראשון.)
+- **שלב א כבר נעשה לפני הצעד הזה** (למשל באתר הדמו של הקורס, 19.11.2026)? בדפים הציבוריים יש קובץ עזר לכותרת ולתיאור, כמו `usePageMeta`, שמחזיר כשיוצאים מהדף את הערכים שהיו קודם. **Claude** מוריד אותו ואת הקריאות אליו, באותה גרסה. ליד הקובץ המוכן הוא טועה: הערכים שהיו קודם הם של הדף שנטען, ולא של `app/index.html`, ומסך פנימי שעוברים אליו היה מקבל את השם של הדף הציבורי.
+- **יש בפרויקט ספרייה שמנהלת את ה־head** (כמו react-helmet)? עובדים דרכה, עם הערכים מהרשימה, ובודקים גם איתה שלא נשארו לידה התגיות של `app/index.html`: בסוף יש כותרת אחת ותיאור אחד. אין ספרייה? לא מוסיפים ספרייה חדשה, כמו בסקיל about-page.
+- **ב־`app/index.html` אין שום דבר שמתאים רק לדף אחד:** לא noindex ולא `canonical`. הקובץ הזה נשלח לכל המסכים הפנימיים, ולכן תגית כזו תחול על כולם. יש שם `canonical`, או תגית `robots` או `googlebot` עם noindex? מורידים אותה אחרי שהיא אישרה את הטיוטה (צעד 1, סעיף 3). הבנייה עוצרת אם היא נשארה.
+- **`canonical` רק בקבצים המוכנים, ולא משתנה במעבר בין מסכים.** גוגל לא ממליצה לשנות אותו מהקוד, ומבקשת שבדף יהיה רק אחד. סורק טוען כל כתובת מחדש, ומקבל את הקובץ של הכתובת הזו. (נבדק במסמך הרשמי, 24.11.2026: https://developers.google.com/search/docs/crawling-indexing/javascript/javascript-seo-basics, בחלק על `rel="canonical"`.)
 - לא משנים שום טקסט שרואים בדפים, ולא שום מסך.
+
+#### 4. הבנייה מראש
+
+**4.1. `app/src/entry-server.tsx`:** מה שהבנייה מציירת. רק הדפים הציבוריים, בלי `App`, בלי בדיקת הכניסה, ובלי ה־Providers של המסכים הפנימיים.
+
+```tsx
+import { prerenderToNodeStream } from 'react-dom/static'
+import { Route, Routes, StaticRouter } from 'react-router-dom'
+import { PUBLIC_PAGES } from './public-pages.tsx'
+
+// הבנייה מראש (הסקיל seo): רק הדפים הציבוריים, בלי שום מסך פנימי ובלי הנתונים של המערכת.
+// scripts/prerender.mjs קורא לקובץ הזה בזמן הבנייה, ולא בדפדפן.
+export { PUBLIC_PAGES, SITE_META, SITE_URL } from './public-pages.tsx'
+
+export function render(path: string, onError: (error: unknown) => void) {
+  return prerenderToNodeStream(
+    <StaticRouter location={path}>
+      <Routes>
+        {PUBLIC_PAGES.map((page) => (
+          <Route key={page.path} path={page.path} element={page.element} />
+        ))}
+      </Routes>
+    </StaticRouter>,
+    { onError },
+  )
+}
+```
+
+אין נתב? אותו קובץ, בלי `StaticRouter`:
+
+```tsx
+export function render(path: string, onError: (error: unknown) => void) {
+  const page = PUBLIC_PAGES.find((p) => p.path === path)
+  return prerenderToNodeStream(<>{page?.element}</>, { onError })
+}
+```
+
+(אזהרה של oxlint על הקובץ הזה, "Fast refresh only works when a file only exports components", צפויה: הקובץ רץ רק בבנייה. לא מתקנים אותה.)
+
+**4.2. `app/scripts/prerender.mjs`:** כותב את הקבצים. כמו `scripts/prerender.mjs` באתר של רות: מתבנית `dist/index.html`, ובכל דף קובץ `dist/<הכתובת>/index.html`.
+
+```js
+// הבנייה מראש של הדפים הציבוריים (הסקיל seo). רץ בסוף npm run build, אחרי שתי הבניות של Vite.
+// לכל דף ב־src/public-pages.tsx נכתב קובץ dist/<הכתובת>/index.html: הקובץ dist/index.html, עם הדף עצמו
+// בתוך #root, ועם השם, התיאור ו־canonical של הדף. מסך פנימי לא מקבל קובץ, וממשיך לקבל את dist/index.html.
+// בלי cleanUrls ב־vercel.json: איתו הכלל ששולח כל כתובת ל־index.html מפסיק לעבוד.
+// כל בעיה עוצרת את הבנייה. ב־Vercel הגרסה החדשה אז לא עולה, והגרסה הקודמת נשארת בייצור.
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises'
+import path from 'node:path'
+import { text } from 'node:stream/consumers'
+import { fileURLToPath, pathToFileURL } from 'node:url'
+
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+const dist = path.join(root, 'dist')
+const ssr = path.join(root, 'dist-ssr')
+
+const ROOT_DIV = '<div id="root"></div>'
+const TITLE = /<title>([\s\S]*?)<\/title>/g
+const DESCRIPTION = /<meta\s[^>]*name=["']description["'][^>]*>/gi
+
+const escapeHtml = (value) =>
+  value.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+const unescapeHtml = (value) =>
+  value.replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+const count = (html, pattern) => (html.match(pattern) ?? []).length
+const contentOf = (tag) => (tag.match(/content=(?:"([^"]*)"|'([^']*)')/) ?? [])[1] ?? ''
+
+class PrerenderError extends Error {}
+const fail = (message) => {
+  throw new PrerenderError(message)
+}
+
+async function main() {
+  const template = await readFile(path.join(dist, 'index.html'), 'utf8')
+
+  // הקובץ שממנו בונים: #root ריק אחד, כותרת אחת ותיאור אחד, ובלי תגית שהייתה חלה על כל הכתובות.
+  if (template.split(ROOT_DIV).length !== 2) fail(`dist/index.html must contain exactly one ${ROOT_DIV}`)
+  if (count(template, TITLE) !== 1) fail('dist/index.html must contain exactly one <title>')
+  if (count(template, DESCRIPTION) !== 1) fail('dist/index.html must contain exactly one meta description')
+  if (/rel=["']canonical["']/i.test(template)) fail('app/index.html has a canonical tag, which applies to every address: remove it')
+  if (/<meta[^>]*name=["'](?:robots|googlebot)["'][^>]*noindex/i.test(template)) fail('app/index.html has a noindex meta tag: remove it')
+
+  let server
+  try {
+    server = await import(pathToFileURL(path.join(ssr, 'entry-server.js')).href)
+  } catch (error) {
+    fail(
+      'loading the public pages crashed. A file that a public page imports touches window, document or ' +
+        `localStorage, or reads a missing setting, as soon as it loads:\n${error?.stack ?? error}`,
+    )
+  }
+  const { render, PUBLIC_PAGES, SITE_META, SITE_URL } = server
+
+  // SITE_META זהה ל־app/index.html, כי הוא חוזר בכל מסך פנימי.
+  const indexTitle = unescapeHtml(template.match(/<title>([\s\S]*?)<\/title>/)[1].trim())
+  const indexDescription = unescapeHtml(contentOf(template.match(DESCRIPTION)[0]))
+  if (indexTitle !== SITE_META.title) fail(`SITE_META.title is not the <title> of app/index.html ("${indexTitle}")`)
+  if (indexDescription !== SITE_META.description) fail('SITE_META.description is not the meta description of app/index.html')
+
+  // SITE_URL: הכתובת הקצרה, כמו ב־og:url שכתב הסקיל about-page.
+  if (!/^https:\/\/[a-z0-9.-]+$/.test(SITE_URL) || SITE_URL.includes('localhost')) {
+    fail(`SITE_URL must be the short production address, with https:// and without / at the end ("${SITE_URL}")`)
+  }
+  const ogUrl = template.match(/<meta\s[^>]*property=["']og:url["'][^>]*>/i)
+  if (ogUrl && !contentOf(ogUrl[0]).startsWith(`${SITE_URL}/`)) {
+    fail(`SITE_URL (${SITE_URL}) is not the address in og:url in app/index.html (${contentOf(ogUrl[0])})`)
+  }
+
+  // לכל דף כתובת, כותרת ותיאור משלו.
+  for (const key of ['path', 'title', 'description']) {
+    const values = PUBLIC_PAGES.map((page) => page[key])
+    const twice = values.find((value, i) => values.indexOf(value) !== i)
+    if (twice) fail(`two public pages have the same ${key}: "${twice}"`)
+  }
+
+  for (const page of PUBLIC_PAGES) {
+    if (!/^\/[a-z0-9-]+(?:\/[a-z0-9-]+)*$/.test(page.path)) {
+      fail(`${page.path}: a public path is lowercase a-z, digits and hyphens, without / at the end`)
+    }
+
+    const errors = []
+    let body
+    try {
+      const { prelude } = await render(page.path, (error) => {
+        errors.push(error)
+      })
+      body = await text(prelude)
+    } catch (error) {
+      errors.unshift(error)
+    }
+    if (errors.length) fail(`${page.path} crashed while rendering:\n${errors[0]?.stack ?? errors[0]}`)
+    if (!body.trim()) fail(`${page.path} rendered empty: is it in PUBLIC_PAGES with the same path?`)
+
+    // פונקציות ולא מחרוזות, כדי ש־$ בטקסט של הדף לא ייקרא כסימן מיוחד.
+    const html = template
+      .replace(ROOT_DIV, () => `<div id="root">${body}</div>`)
+      .replace(TITLE, () => `<title>${escapeHtml(page.title)}</title>`)
+      .replace(DESCRIPTION, () => `<meta name="description" content="${escapeHtml(page.description)}" />`)
+      .replace('</head>', () => `  <link rel="canonical" href="${SITE_URL}${page.path}" />\n  </head>`)
+
+    const file = path.join(dist, ...page.path.split('/').filter(Boolean), 'index.html')
+    await mkdir(path.dirname(file), { recursive: true })
+    await writeFile(file, html, 'utf8')
+  }
+
+  return PUBLIC_PAGES.map((page) => page.path)
+}
+
+// יציאה מפורשת: טיימר שקובץ כלשהו הפעיל כשנטען לא יעצור את הבנייה.
+main()
+  .then(async (paths) => {
+    await rm(ssr, { recursive: true, force: true })
+    process.stdout.write(`prerendered ${paths.length} public pages: ${paths.join(', ')}\n`)
+    process.exit(0)
+  })
+  .catch(async (error) => {
+    await rm(ssr, { recursive: true, force: true })
+    process.stderr.write(`\nprerender failed: ${error instanceof PrerenderError ? error.message : error?.stack ?? error}\n\n`)
+    process.exit(1)
+  })
+```
+
+- **הקובץ כמו שהוא.** הבדיקות שבו הן הכללים של השלב: כותרת ותיאור לכל דף, שונים זה מזה, ו־`app/index.html` בלי `canonical` ובלי noindex. לא מורידים בדיקה כדי שהבנייה תעבור.
+- **מה שהוא לא כותב:** קובץ לכתובת `/`, או לכל מסך פנימי. הם ממשיכים לקבל את `dist/index.html`, עם `<div id="root"></div>` ריק.
+- **`dist-ssr`** הוא הבנייה לשרת. הסקריפט מוחק אותו בסוף, גם כשהבנייה נכשלת. הוא לא עולה לייצור, ולא נשמר בגרסה.
+
+**4.3. `app/package.json`:** בסוף הפקודה `build` נוספות שתי פקודות. מה שכבר כתוב בה נשאר בהתחלה, בלי שינוי:
+
+```json
+"build": "tsc -b && vite build && vite build --ssr src/entry-server.tsx --outDir dist-ssr --sourcemap && node --enable-source-maps scripts/prerender.mjs"
+```
+
+- `--sourcemap` ו־`--enable-source-maps`: כשדף מפיל את הבנייה, ההודעה מראה את הקובץ ואת השורה בקוד המקורי (`src/...`), ולא שורה בקובץ הבנוי (סעיף 5). המפות נשארות ב־`dist-ssr`, ונמחקות איתו. הקוד שעולה לדפדפן לא משתנה.
+- Vercel מריץ את `npm run build`. בהגדרות הפרויקט ב־Vercel יש Build Command אחר? אז הבנייה מראש לא רצה שם (צעד 10 יגלה). אומרים לה במשפט, ורות תבדוק.
+
+**4.4. `app/.gitignore`:** יש בו שורה `dist-ssr`? בתבנית של Vite היא כבר שם. אין? מוסיפים אותה.
+
+**4.5. `app/vercel.json`: לא משתנה, ובלי `cleanUrls`.** Vercel מגיש קובץ שקיים לפני כלל ה־`rewrites` (צעד 8), ולכן `/about` מחזיר את `dist/about/index.html`, וכל כתובת אחרת ממשיכה ל־`index.html`. (Vercel: "precedence is given to the filesystem prior to rewrites being applied". נבדק במסמך הרשמי, 24.11.2026: https://vercel.com/docs/project-configuration/vercel-json. נבדק גם באתר חי, 24.11.2026, למטה.)
+- **לא מוסיפים `"cleanUrls": true`.** בבדיקה באתר חי (24.11.2026), עם `cleanUrls` והקבצים בשם `dist/about.html`: הכלל ששולח כל כתובת ל־`/index.html` הפסיק לעבוד, ו־`/today`, `/nonexistent-xyz`, `/ABOUT` ו־`/services/test-xyz` החזירו 404. כל המסכים הפנימיים היו נשברים בכניסה ישירה. וגם קובץ האימות של גוגל חזר עם הפניה, 308, ל־`/google…` בלי `.html`, וגוגל כותבת: "Search Console does not follow redirects when looking for this file". (Vercel: עם `cleanUrls`, כתובת שנגמרת ב־`.html` מקבלת 308. גוגל: https://support.google.com/webmasters/answer/9008080. שני המסמכים נבדקו ב־24.11.2026. באותו מסמך של גוגל, בפתרון בעיות, כתוב גם שהפניה בתוך אותו דומיין כן נבדקת. בגלל שני הנוסחים, לא סומכים על זה.)
+- לא מוסיפים `trailingSlash`. באתר של רות הוא `true`, כי שם כל הכתובות נגמרות ב־`/`. כאן `/about` היה עובר ל־`/about/`, שמסומן "לא לחיפוש" בכלל של צעד 8.
+
+**4.6. הדפדפן: `createRoot` נשאר.** כשהקוד נטען, React מוחק את מה שבתוך `#root` בקובץ המוכן, ומצייר את אותו דף מחדש. (React: "The first time you call root.render, React will clear all the existing HTML content inside the React root". נבדק במסמך הרשמי, 24.11.2026: https://react.dev/reference/react-dom/client/createRoot.)
+- באותו מסמך React כותבת שעל HTML שנבנה מראש משתמשים ב־`hydrateRoot`. כאן לא, בכוונה: `hydrateRoot` דורש שהציור הראשון בדפדפן יהיה זהה לגמרי לקובץ המוכן, וכל הבדל, כמו תאריך, ערך מהדפדפן או Provider של המערכת, נותן שגיאות. ובמסכים הפנימיים `#root` ריק. עם `createRoot` הדף פשוט מצויר מחדש. לא מחליפים ל־`hydrateRoot`. (נבדק ב־24.11.2026, במחשב ובאתר חי: בלי שום הודעה ב־console, ובקובץ המוכן היה ב־`#root` תגית שהבנייה הוסיפה, `<link rel="preload">` ללוגו, ובדף אחרי הטעינה כבר לא. כך רואים ש־React צייר מחדש.)
+
+#### 5. דף ציבורי שמפיל את הבנייה
+
+בבנייה מראש הדפים הציבוריים רצים ב־Node, ולא בדפדפן. אין שם `window`, `document` ו־`localStorage` של דפדפן, ואין Providers של המערכת. דף ציבורי, או קובץ שהוא מייבא, שנוגע באחד מהם, מפיל את הבנייה. ההודעה מתחילה ב־`prerender failed:`, ואחריה הקובץ והשורה. ב־Vercel הבנייה נכשלת, והגרסה הקודמת נשארת בייצור. במחשב **Claude** מריץ את הבנייה לפני כל שמירה (צעד 9), ולכן כמעט תמיד זה נתפס שם.
+
+| מה כתוב בהודעה | מה זה | מה Claude עושה |
+|---|---|---|
+| `loading the public pages crashed`, ואחריו `window is not defined`, `document is not defined` או `localStorage is not defined` | קובץ שדף ציבורי מייבא נוגע בדפדפן ברגע שהוא נטען, בשורה מחוץ לפונקציה | מעביר את השורה לתוך פונקציה, שנקראת מ־`useEffect` או מלחיצה, ולא כשהקובץ נטען |
+| `/<כתובת> crashed while rendering`, עם `window`, `document` או `localStorage` | הדף עצמו נוגע בדפדפן כשהוא מצויר | מעביר את זה ל־`useEffect`, או שומר עליו ב־`typeof window !== 'undefined'` |
+| `/<כתובת> crashed while rendering`, עם `חייב לפעול בתוך ...` או `must be used within` | הדף משתמש ב־hook של המסכים הפנימיים, כמו התפקיד, הנתונים או הכניסה | הדף הציבורי לא משתמש בנתונים של המערכת. מה שהוא צריך עובר לקבוע בדף או לקובץ תוכן. לא עוטפים את הדף ב־Providers של המערכת בבנייה: כך נתונים פנימיים היו נכנסים לקובץ ציבורי |
+| `supabaseUrl is required`, או הגדרה אחרת שחסרה | דף ציבורי מייבא, ישר או דרך רכיב, את הקובץ שמתחבר ל־Supabase, וההגדרה שלו לא קיימת בבנייה | דף ציבורי לא מייבא את הקובץ של Supabase. רכיב משותף שמייבא אותו מתפצל: החלק שהדף הציבורי צריך עובר לקובץ בלי Supabase |
+| `rendered empty` | הדף לא צייר כלום, למשל כש־`element` ריק, או, בלי נתב, כשהכתובת ב־`render` לא זהה לרשימה | מתקן את הרשומה ברשימה, או את הכתובת |
+| `two public pages have the same title` או `description` | שני דפים עם אותה כותרת או אותו תיאור | חוזר לטיוטה (צעד 1): לכל דף משלו, והיא מאשרת |
+| `SITE_META.title`, `SITE_META.description` או `SITE_URL` | הרשימה לא תואמת ל־`app/index.html` | מעתיק שוב מ־`app/index.html`. הכתובת ב־`og:url` עצמה שגויה? את זה מתקן הסקיל about-page ("לפני שמתחילים", סעיף 2) |
+| `must contain exactly one <div id="root"></div>` | ב־`app/index.html` יש משהו בתוך `#root`, כמו טקסט של טעינה | אומר לה במשפט מה נמצא, ומוציא אותו אחרי שהיא מאשרת |
+| `has a canonical tag` או `has a noindex meta tag` | נשארה ב־`app/index.html` תגית שחלה על כל הכתובות | מוריד אותה (סעיף 3) |
+
+- **`typeof window`, ולא `typeof localStorage`.** ב־Node, `localStorage` מתנהג אחרת בכל גרסה. במחשב, ב־Node 22, הוא לא קיים. בבנייה ב־Vercel, ב־Node v26.13.1, הוא נתן אזהרה ("ExperimentalWarning: localStorage is not available because --localstorage-file was not provided"), ו־`localStorage.getItem` זרק שגיאה. ולפי המסמך של Node, מגרסה 26 כבר הגישה עצמה זורקת שגיאה. `window` לא קיים בשום גרסה של Node. (נבדק ב־24.11.2026: https://nodejs.org/api/globals.html, ובבנייה ב־Vercel.)
+- **נתונים שהדף טוען מהמסד** ב־`useEffect` לא נכנסים לקובץ המוכן, כי `useEffect` לא רץ בבנייה. בקובץ יהיה מה שהדף מציג לפני שהנתונים הגיעו. הטקסט של דף ציבורי כתוב בקוד או בקובץ תוכן, כמו בסקילים about-page ו־legal-pages ובשלב ה. דף ציבורי שכל הטקסט שלו מגיע מהמסד? אומרים לה במשפט, ורות תבדוק.
+- **טיימר שקובץ הפעיל כשנטען** לא עוצר את הבנייה: הסקריפט יוצא בעצמו בסוף. (נבדק במחשב, 24.11.2026.)
+- **איך Claude מתקן:** קורא בהודעה את הקובץ ואת השורה, ומתקן רק שם. מריץ שוב את הבנייה. אחר כך פותח ב־Playwright, במחשב, את המסך הפנימי שמשתמש באותו קובץ, ובודק שהוא עובד כמו קודם. **לא מוציאים דף מהרשימה, ולא מוציאים את הבנייה מראש מ־`build`, כדי שהבנייה תעבור.** התיקון ישנה את מה שמסך פנימי עושה? עוצרים, אומרים לה במשפט מה נמצא, ורות תבדוק.
+- (נבדק במחשב, 24.11.2026, בבנייה אמיתית של המערכת: כל שורה בטבלה, חוץ מ־`supabaseUrl is required`, הופעלה בכוונה, בשינוי של שורה אחת, ובכל אחת הבנייה נעצרה עם ההודעה שבטבלה. בשלוש שורות הדף הפיל את הבנייה: גישה ל־`window.localStorage` כשהקובץ נטען, ושם ההודעה הראתה רק את הקובץ ואת השורה ב־`src`, בלי הכתובת של הדף. וגישה ל־`localStorage` בזמן הציור, ו־hook של התפקיד בלי ה־Provider שלו, ושם ההודעה הראתה גם את הכתובת של הדף. `supabaseUrl is required.` נבדק רק ב־supabase-js 2.107.0, ב־Node, מחוץ לבנייה: בלי הכתובת של Supabase, `createClient` עצר בהודעה הזו. עם כתובת הוא עבד גם ב־Node, בלי `window`, ולא השאיר את Node פתוח.)
+
+#### 6. בודקים במחשב (בצעד 9)
+
+1. **הבנייה:** `npm run build` עובר, ובסופו השורה `prerendered <מספר> public pages:`, עם כל הכתובות שברשימה, ורק אותן.
+2. **הקבצים:** לכל דף ציבורי, **Claude** קורא את `app/dist/<הכתובת>/index.html` (ל־`/about`: `app/dist/about/index.html`), ובודק:
+   - הטקסט של הדף, כולל הכותרת הראשית, בתוך `<div id="root">`.
+   - בדיוק `<title>` אחד, עם השם של הדף, ובדיוק `meta[name="description"]` אחד, עם התיאור שלו.
+   - בדיוק `<link rel="canonical">` אחד: `<SITE_URL><הכתובת>`.
+   - בדף האודות, בלוק ה־`application/ld+json` מסוג `Organization`, עם אותו טקסט כמו בדף. בכל דף שמצייר בלוק כזה, הבלוק בקובץ.
+3. **אין קובץ למסך פנימי:** ב־`app/dist` יש רק `index.html`, תיקייה לכל דף ציבורי, `assets`, והקבצים של `app/public`. וב־`app/dist/index.html`, `<div id="root"></div>` ריק.
+4. **ב־Playwright, על `vite preview`:** במחשב הקובץ המוכן נפתח בכתובת עם `/` בסוף, כמו `/about/`. `/about`, בלי `/`, מחזיר במחשב את `app/index.html`, והקוד מצייר את הדף. זה צפוי: בייצור `/about` מחזיר את הקובץ (סעיף 7). בכל דף ציבורי, ב־`/<הכתובת>/`:
+   - ב־console אין שגיאות ואין אזהרות.
+   - ב־head בדיוק כותרת אחת, תיאור אחד ו־`canonical` אחד, של הדף הזה.
+   - הדף עובד אחרי הטעינה: קישור בתוכו עובר לדף אחר בלי לטעון מחדש.
+   - מעבר מדף ציבורי למסך פנימי מחזיר את השם והתיאור של `app/index.html`, וחזרה לדף הציבורי מחזירה את שלו.
+5. **`npm run dev` עובד כמו קודם,** והמסכים הפנימיים נפתחים. בזמן פיתוח אין בנייה מראש, וזה בסדר.
+
+#### 7. בודקים בייצור (בצעד 10)
+
+אחרי "מיזגתי", בכתובת הקצרה, בלי להיות מחוברת:
+
+1. **הקוד שחוזר, לפני שהוא רץ.** לכל דף ציבורי, **Claude** מוריד את הכתובת, בלי דפדפן (`curl -s https://<הדומיין>/<הכתובת>`), ובודק בקוד שחזר את כל מה שבסעיף 6.2: הטקסט, השם, התיאור, `canonical`, והנתונים המובנים. כך רואה את הדף סורק שלא מריץ קוד.
+2. **הכותרות:** `curl -sI` לכל דף ציבורי: 200, `text/html`, בלי `X-Robots-Tag`, ובלי `Location`, כלומר בלי הפניה.
+3. **מסך פנימי, `/` ו־`/nonexistent-xyz`:** 200, עם `X-Robots-Tag: noindex, nofollow`, ו־`<div id="root"></div>` ריק. בלי 404: 404 במסך פנימי אומר ש־`cleanUrls` נכנס ל־`vercel.json` (סעיף 4.5).
+4. **קובץ האימות של גוגל, אם כבר יש (שלב ב):** 200, בלי הפניה, בלי `X-Robots-Tag`, והתוכן זהה לקובץ.
+5. **משהו לא עבר:**
+   - **בקוד שחזר מדף ציבורי `#root` ריק:** בודקים ב־Vercel, ביומן הבנייה של הגרסה, את השורה `prerendered`. אין אותה? Vercel לא מריץ את `npm run build` (סעיף 4.3), או שהגרסה עוד לא עלתה. יש אותה? בודקים ש־`vercel.json` בלי `cleanUrls`, ושהקבצים בצורה `dist/<הכתובת>/index.html`. מתקנים בענף `fix/seo`, מעלים לפי "ענפים", ואחרי "מיזגתי" בודקים שוב.
+   - **מסך פנימי מחזיר 404:** `cleanUrls` ב־`vercel.json`. מורידים אותו, באותה דרך. זה דחוף: המסכים לא נפתחים מכתובת ישירה.
+
+**נבדק ב־24.11.2026 באתר חי,** בפרויקט בדיקה נפרד ב־Vercel (`ofek-prerender-test`, בחשבון של הדמו), עם עותק של מערכת אופק של הקורס, React 19.3, react-router-dom 7.18, Vite 8.3, ובנייה ב־Node v26.13.1. לא באתר הדמו של הקורס, ולא מול גוגל.
+- `/about`, `/privacy` ו־`/services/consulting`: 200, בלי `X-Robots-Tag`, ובקוד שחזר הטקסט, השם, התיאור ו־`canonical` של כל דף, ובלוק הנתונים המובנים בדף האודות ובדף השירות.
+- `/`, `/today`, `/clients`, `/index.html`, `/about.html`, `/ABOUT`, `/nonexistent-xyz`, `/services`, `/services/` ו־`/services/test-xyz`: 200, עם `X-Robots-Tag: noindex, nofollow`, ו־`#root` ריק.
+- `/about/`: הקובץ המוכן, עם `X-Robots-Tag` (כמו ב־19.11, צעד 8), ו־`canonical` לכתובת בלי `/`. `/about?x=1`: הקובץ המוכן, בלי `X-Robots-Tag`.
+- קובץ אימות לדוגמה של גוגל, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/logo.png` וקבצי `/assets`: 200, בלי `X-Robots-Tag`, וקובץ האימות זהה לקובץ.
+- ב־Playwright, על הגרסה האחרונה בייצור: `/privacy` נפתח בלי שום הודעה ב־console, עם כותרת אחת, תיאור אחד ו־`canonical` אחד. קישור ל־`/about` עבר בלי לטעון מחדש, ומשם מסך פנימי (`/today`) וחזרה ל־`/about` החזירו כל פעם את השם והתיאור הנכונים. חזרה מהמסך הפנימי לדף ציבורי נבדקה גם במחשב, ב־`vite preview`.
+- (מה שעוד לא נבדק: הבנייה מראש באתר הדמו של הקורס, במערכת בלי נתב באתר חי (נבדקה רק בנייה במחשב), ואיך Search Console מציג את הדף ב"בדיקה של כתובת אתר פעילה".)
 
 ### צעד 3: הנתונים המובנים ותגיות השיתוף: רק בודקים
 
@@ -269,23 +629,25 @@ Sitemap: https://<הדומיין>/sitemap.xml
 - **הסיומות מול הקבצים שלה:** משווים את רשימת הסיומות לקבצים שב־`app/public` ולקבצים שהבנייה יוצרת (בדרך כלל `app/dist/assets`). קובץ עם סיומת שלא ברשימה, כמו `.gif`, `.pdf`, `.ttf` או `.json`, יקבל את הכותרת: מוסיפים את הסיומת שלו לרשימה, באותה צורה (`|gif`). רק לא את `html`: אז גם `/index.html` ו־`/about.html` היו יוצאים מהסימון.
 - **כתובת עם נקודה שאין מאחוריה קובץ**, כמו `/index.html`, `/about.html` או `/customers.json`, מחזירה את המערכת, ולכן מקבלת את הכותרת, כמו כל מסך פנימי. (בנוסח הקודם של הכלל, שבו כל כתובת עם נקודה יצאה מהכלל, כתובות כאלה החזירו את המערכת בלי הכותרת. נמצא באתר הדמו של הקורס, 19.11.2026.)
 - **הפער שנשאר:** כתובת שנגמרת באחת הסיומות שברשימה, או שנראית כמו קובץ האימות של גוגל, ואין מאחוריה קובץ, כמו `/x.png`, `/x.js` או `/google0.html`, מחזירה את המערכת בלי הכותרת. כלל בכותרות לא יודע אם הקובץ קיים. (נבדק באתר הדמו, 19.11.2026.)
-- כתובת של דף ציבורי עם `/` בסוף (`/about/`), או באותיות גדולות (`/ABOUT`), כן מקבלת אותה. זה בסדר: במפת האתר הכתובת בלי `/`, ובאותיות כמו בנתב.
+- כתובת של דף ציבורי עם `/` בסוף (`/about/`), או באותיות גדולות (`/ABOUT`), כן מקבלת אותה. זה בסדר: במפת האתר הכתובת בלי `/`, ובאותיות כמו בנתב. `/about/` מחזירה את הקובץ המוכן של הדף (צעד 2), עם `canonical` לכתובת בלי `/`, ו־`/ABOUT` מחזירה את `app/index.html`. (נבדק באתר חי, בפרויקט בדיקה, 24.11.2026.)
 - כלל ה־`Content-Type` של `llms.txt` הוא כמו באתר של רות. (באתר של רות גם קבצי `.txt` שאין עליהם כלל כזה, כמו `robots.txt` וקובץ המפתח, חוזרים מ־Vercel כ־`text/plain; charset=utf-8`: נבדק ב־19.11.2026, באתר אחד.)
 - כבר יש ב־`vercel.json` עוד `headers`? מוסיפים לצידם, לא מוחקים. כלל ישן שנותן `X-Robots-Tag` גם לדף ציבורי מתקנים לפי הטיוטה (צעד 1, סעיף 3). אין `vercel.json` בכלל? אז גם הדפים הציבוריים לא נפתחים באינטרנט (404), כמו בסקילים about-page ו־legal-pages. אומרים לה את זה במשפט, ואחרי שהיא מאשרת יוצרים אותו בתיקייה ש־Vercel בונה ממנה (בדרך כלל `app`), עם כלל ה־`rewrites` ועם `headers`, כמו בדוגמה.
+- **בלי `cleanUrls`.** איתו הכלל של `rewrites` מפסיק לעבוד, המסכים הפנימיים מחזירים 404 בכניסה ישירה, וקובץ האימות של גוגל מקבל הפניה (צעד 2, סעיף 4.5). יש כבר `cleanUrls` ב־`vercel.json`? אומרים לה במשפט, ומורידים אותו אחרי שהיא מאשרת.
 - **מה נבדק במסמכים ובספרייה:** ש־Vercel מגיש קובץ שקיים בתיקייה לפני כלל ה־`rewrites` (נבדק במסמך הרשמי, 19.11.2026: https://vercel.com/docs/project-configuration/vercel-json, וב־19.11.2026 באתר הדמו של הקורס: `/logo.png` חזר כתמונה). שהתחביר `(?!...)` נכתב בתוך סוגריים (אותו מסמך, בדוגמה של `rewrites`). ושהכלל הזה, עם ארבעת הדפים, מסמן את `/`, `/customers`, `/about/`, `/index.html` ו־`/about.html`, ולא את `/about`, `/privacy`, `/terms`, `/accessibility` והקבצים (נבדק בספרייה של Vercel שקוראת את `vercel.json`, `@vercel/routing-utils` 5.3.3, 19.11.2026).
 - **נבדק ב־19.11.2026 באתר חי:** באתר הדמו של הקורס, עם שלושה דפים ציבוריים (שם אין הצהרת נגישות, ולכן ברשימה אין `accessibility$`), בכותרות שחזרו מ־curl. קיבלו `X-Robots-Tag: noindex, nofollow`: `/`, `/customers`, `/index.html`, `/about.html`, `/customers.json`, `/today.php`, `/privacy.`, `/a.b/c`, `/about/` ו־`/ABOUT`. חזרו 200 בלי `X-Robots-Tag`: `/about`, `/privacy` ו־`/terms` (גם `/about?x=1`), `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/logo.png`, קובץ האימות של גוגל, קובץ המפתח של IndexNow, וקבצי ה־`.js` וה־`.css` שב־`/assets`, ש־`index.html` טוען. בכל זאת, באתר שלה הבדיקה בצעד 10 היא תנאי להמשך.
 
 ### צעד 9: בדיקה במחשב, ושמירה
 
-1. **Claude** בודק שאין שגיאות טיפוסים ושהבנייה עוברת. בהרבה פרויקטים הבנייה עצמה בודקת גם את הטיפוסים.
+1. **Claude** בודק שאין שגיאות טיפוסים ושהבנייה עוברת. בהרבה פרויקטים הבנייה עצמה בודקת גם את הטיפוסים. בסוף הבנייה השורה `prerendered`, עם כל הדפים הציבוריים, ואחריה הבדיקות של הקבצים המוכנים (צעד 2, סעיף 6). הבנייה נעצרה ב־`prerender failed`? צעד 2, סעיף 5.
 2. מריצים את המערכת במחשב, ובודקים ב־Playwright:
    - כל דף ציבורי: הכותרת שלו בלשונית, והתיאור שלו בתגית. ב־head יש **בדיוק `<title>` אחד ובדיוק `meta[name="description"]` אחד**, ושניהם עם הטקסט של הדף הזה.
+   - הקובץ המוכן של כל דף, ב־`vite preview`, בכתובת עם `/` בסוף, כמו `/privacy/`: צעד 2, סעיף 6.4. בלי `/` בסוף, במחשב הדף מצויר מהקוד, וזה צפוי.
    - מסך פנימי אחד: הכותרת והתיאור של `app/index.html`, כמו קודם, גם אחרי שעוברים אליו מדף ציבורי.
    - `/robots.txt`, `/sitemap.xml` ו־`/llms.txt`: הטקסט של הקובץ, ולא המערכת.
    - **העברית ב־`llms.txt` יכולה להיראות במחשב שבורה,** סימנים במקום אותיות: השרת שמריץ את המערכת במחשב לא אומר לדפדפן שהקובץ ב־UTF-8. זה צפוי, ולא נוגעים בקובץ. את העברית בודקים באינטרנט (צעד 10), שם `vercel.json` שולח אותו עם `charset=utf-8`. (נבדק בהרצה על אתר הדמו, 19.11.2026: במחשב סימנים, ובאינטרנט אותו קובץ חזר כ־`text/plain; charset=utf-8`.)
    - את הכלל של "לא לחיפוש" אפשר לבדוק רק באינטרנט: `vercel.json` פועל רק ב־Vercel.
 3. **שומרים גרסה בענף `feature/seo`, ומעלים ל־GitHub ב־Pull Request**, לפי "ענפים".
-   - מוסיפים לגרסה כל קובץ שהשלב יצר או שינה, ורק אותם, לפי השם: הקבצים החדשים ב־`app/public`, `app/vercel.json`, `app/index.html` אם השתנה, קבצי הדפים ששונו, וכל קובץ חדש בקוד, כמו קובץ עזר לכותרת ולתיאור. לפני ששומרים, בודקים ב־`git status` שלא נשאר בחוץ קובץ של השלב: קובץ שהקוד צריך ולא עלה ל־GitHub מפיל את הבנייה ב־Vercel.
+   - מוסיפים לגרסה כל קובץ שהשלב יצר או שינה, ורק אותם, לפי השם: הקבצים החדשים ב־`app/public`, `app/vercel.json`, `app/index.html` אם השתנה, קבצי הדפים ששונו, ושל הבנייה מראש: `app/src/public-pages.tsx`, `app/src/PublicPageMeta.tsx`, `app/src/entry-server.tsx`, `app/scripts/prerender.mjs`, `app/src/App.tsx`, `app/package.json`, ו־`app/.gitignore` אם השתנה. `app/dist` ו־`app/dist-ssr` לא נכנסים. לפני ששומרים, בודקים ב־`git status` שלא נשאר בחוץ קובץ של השלב: קובץ שהקוד צריך ולא עלה ל־GitHub מפיל את הבנייה ב־Vercel. בלי `app/scripts/prerender.mjs`, למשל, הבנייה שם נעצרת.
    - `.env`, התיקייה "בדיקות" ו־`.playwright-mcp` לא נכנסים. אומרים לה במשפט מה בדקת.
    - דוחפים את הענף, ונותנים לה קישור ל־Pull Request. מחכים ל"מיזגתי", חוזרים ל־`main`, מושכים, ומוחקים את הענף. רק אז הבדיקה באינטרנט.
 
@@ -300,7 +662,7 @@ Sitemap: https://<הדומיין>/sitemap.xml
    - ב־`/`, ב־`/index.html`, ובמסך פנימי נוסף מהנתב, אם יש: `X-Robots-Tag: noindex, nofollow`.
    - בכל דף ציבורי: אין `X-Robots-Tag`. וגם בקוד שחוזר מהכתובת, ולא רק בכותרות: אין תגית `robots` או `googlebot` עם noindex.
    - בקבצים של סעיף 2, בלוגו, ובקבצי הקוד ש־`index.html` טוען: תשובה 200, בלי `X-Robots-Tag`. קובץ עם `X-Robots-Tag`? הסיומת שלו חסרה ברשימה (צעד 8).
-4. **ב־Playwright, בלי להיות מחוברת:** כל דף ציבורי נפתח עם הטקסט שלו ועם הכותרת שלו בלשונית, וב־head שלו בדיוק כותרת אחת ותיאור אחד.
+4. **בקוד שחוזר, ואחר כך ב־Playwright, בלי להיות מחוברת:** קודם הבדיקות של צעד 2, סעיף 7: בקוד שחוזר מכל דף ציבורי, לפני שהוא רץ, הטקסט שלו, השם, התיאור, `canonical` והנתונים המובנים, ובמסך פנימי `#root` ריק. אחר כך, ב־Playwright, כל דף ציבורי נפתח עם הטקסט שלו ועם הכותרת שלו בלשונית, וב־head שלו בדיוק כותרת אחת, תיאור אחד ו־`canonical` אחד.
 5. **אין סוד בקוד של האתר.** (מהקטגוריה Security בבדיקה של רות, audit-website.) **Claude** מוריד את קבצי הקוד ש־`index.html` טוען, וגם כל קובץ `/assets/….js` שהשם שלו מופיע בתוך הקוד שהורד, וכך הלאה, עד שאין שם חדש: כשהקוד מחולק לכמה קבצים, חלק מהם נטענים רק כשעוברים למסך. בכולם הוא בודק, בלי להדפיס שום ערך:
    - `sb_secret_` ואחריו אותיות: מדפיסים רק כמה נמצאו.
    - `sbp_` ואחריו רצף ארוך של אותיות וספרות: מדפיסים רק כמה נמצאו. זו הצורה של הטוקן של Supabase, אחד הסודות שבסקיל backup-and-keep-alive. (נבדק במסמכים של Supabase, 19.11.2026: https://supabase.com/docs/reference/api/introduction ו־https://supabase.com/docs/guides/platform/personal-access-tokens)
@@ -309,6 +671,7 @@ Sitemap: https://<הדומיין>/sitemap.xml
 6. **משהו לא עבר:** עוצרים, ולא ממשיכים לשלב ב. רישום בגוגל מזמין את הסורקים של גוגל לאתר, ולכן קודם הסימון "לא לחיפוש" צריך לעבוד. מפתח בקוד של האתר חשוף לכל מי שפותחת את הכתובת, גם בלי גוגל, ולכן עוצרים גם עליו.
    - **דף ציבורי עם `X-Robots-Tag`, מכל כלל שהוא, או עם תגית noindex בקוד** הוא הדחוף ביותר: הדף הזה לא ייכנס לגוגל. זה תיקון של מה שנבנה בשלב שהיא אישרה: מתקנים (את הרשימה בכלל, את הכלל הישן, או את התגית) בענף `fix/seo`, מעלים לפי "ענפים", אחרי "מיזגתי" בודקים שוב, ואומרים לה במשפט מה תוקן.
    - **מסך פנימי בלי `X-Robots-Tag`, והגרסה עלתה:** הכלל לא עובד באתר שלה. אומרים לה: "הסימון של המסכים הפנימיים לא עבד אצלך. זה לא משהו שעשית לא נכון. נעצור כאן, ורות תבדוק." לא ממשיכים.
+   - **דף ציבורי שבקוד שחוזר ממנו `#root` ריק,** או **מסך פנימי שמחזיר 404:** הבנייה מראש לא עלתה, או ש־`cleanUrls` נכנס ל־`vercel.json`. מה בודקים ואיך מתקנים: צעד 2, סעיף 7.5. 404 במסך פנימי דחוף כמו דף ציבורי עם `X-Robots-Tag`: המסכים לא נפתחים מכתובת ישירה.
 
 בסוף השלב: "הדפים הציבוריים מוכנים לגוגל ולמנועי הבינה, והמסכים הפנימיים מסומנים 'לא לחיפוש'. אפשר לבדוק בעיניים: פתחי את <הדומיין>/<דף>, ותראי בלשונית את השם החדש שלו." (`<דף>`: דף ציבורי שאינו דף האודות, למשל `privacy`. אין כזה? `about`, עם השם שלו בלשונית.)
 
@@ -486,10 +849,11 @@ Sitemap: https://<הדומיין>/sitemap.xml
 
 | מה בודקים | איך | הקטגוריה אצל רות |
 |---|---|---|
-| לכל דף ציבורי כותרת ותיאור, שונים מהדפים האחרים, וב־head בדיוק כותרת אחת ותיאור אחד | Playwright, אחרי שהדף נטען | Core SEO |
+| לכל דף ציבורי כותרת ותיאור, שונים מהדפים האחרים, וב־head בדיוק כותרת אחת, תיאור אחד ו־`canonical` אחד | בקוד שחוזר (curl), ואחר כך ב־Playwright, אחרי שהדף נטען | Core SEO |
+| הטקסט של כל דף ציבורי בקוד שחוזר, לפני שהקוד רץ, ו־`#root` ריק במסכים הפנימיים | curl (שלב א, צעד 2, סעיף 7) | Crawlability |
 | תגיות ה־`og:` עם הכתובת הקצרה, והלוגו נפתח | הקובץ `app/index.html` בייצור | Social |
-| הנתונים המובנים בדף האודות: JSON תקין, עם השם, הכתובת, הלוגו והמייל שבדף | Playwright, אחרי שהדף נטען | Schema |
-| בדפים של שלב ה, אם נבנו: `Service` בכל דף שירות ו־`FAQPage` בדף השאלות, JSON תקין, עם אותו טקסט כמו בדף | Playwright, אחרי שהדף נטען | Schema |
+| הנתונים המובנים בדף האודות: JSON תקין, עם השם, הכתובת, הלוגו והמייל שבדף | בקוד שחוזר (curl), ואחר כך ב־Playwright, אחרי שהדף נטען | Schema |
+| בדפים של שלב ה, אם נבנו: `Service` בכל דף שירות ו־`FAQPage` בדף השאלות, JSON תקין, עם אותו טקסט כמו בדף | בקוד שחוזר (curl), ואחר כך ב־Playwright, אחרי שהדף נטען | Schema |
 | `robots.txt`, `sitemap.xml` ו־`llms.txt`: הסוג והתוכן, וכל כתובת במפת האתר נפתחת עם הטקסט שלה | curl ו־Playwright | Crawlability |
 | "לא לחיפוש" על `/`, על `/index.html` ועל מסך פנימי, ולא על הדפים הציבוריים ועל הקבצים: לא בכותרות, ולא בתגית בקוד | הכותרות והקוד של התשובה | Crawlability |
 | כותרת ראשית אחת בכל דף ציבורי, וטקסט חלופי ללוגו | Playwright | Content, Images |
@@ -527,7 +891,7 @@ Sitemap: https://<הדומיין>/sitemap.xml
 
 ## שלב ה: דפים שעוזרים לחיפוש
 
-(השלב הזה נכתב ב־24.11.2026, ועוד לא נבדק בהרצה מלאה. מה שנבדק כתוב ליד כל דבר, עם התאריך.)
+(השלב הזה נכתב ב־24.11.2026, ועוד לא נבדק בהרצה מלאה. מה שנבדק כתוב ליד כל דבר, עם התאריך. הבנייה מראש של דף שירות, בכתובת עם שתי רמות (`/services/<slug>`), נבדקה ב־24.11.2026 באתר חי, בפרויקט בדיקה נפרד ולא באתר הדמו של הקורס: שלב א, צעד 2.)
 
 השלב הזה בא אחרי שלב ד, והוא לא חלק מהרישום. אפשר לעשות אותו בשיעור או בבית, ולחזור אליו בכל פעם שנוסף שירות. מתחילים אותו כשהיא כותבת "נבנה דפים שעוזרים לחיפוש" או "נוסף שירות", או כשהיא מבקשת דף לשירות או דף של שאלות נפוצות.
 
@@ -537,7 +901,8 @@ Sitemap: https://<הדומיין>/sitemap.xml
 
 ### לפני השלב
 
-1. **שלב א נעשה, והבדיקה בייצור שלו עברה** (שלב א, צעד 10): ב־`app/vercel.json` יש הכלל של "לא לחיפוש", וב־`app/public` יש `sitemap.xml` ו־`llms.txt`. לא? עוצרים, ואומרים לה במשפט שקודם מכינים לגוגל את הדפים הקיימים (שלב א). הדפים החדשים נכנסים לאותו כלל, לאותה מפת אתר ולאותו קובץ.
+1. **שלב א נעשה, והבדיקה בייצור שלו עברה** (שלב א, צעד 10): ב־`app/vercel.json` יש הכלל של "לא לחיפוש", ב־`app/public` יש `sitemap.xml` ו־`llms.txt`, ויש בנייה מראש: `app/src/public-pages.tsx`, `app/scripts/prerender.mjs`, והשורה `prerendered` בסוף `npm run build` (שלב א, צעד 2). לא? עוצרים, ואומרים לה במשפט שקודם מכינים לגוגל את הדפים הקיימים (שלב א). הדפים החדשים נכנסים לאותה רשימה, לאותו כלל, לאותה מפת אתר ולאותו קובץ.
+   - שלב א נעשה לפני שהבנייה מראש נכנסה לסקיל, ואין `app/scripts/prerender.mjs`? אומרים לה במשפט: "קודם אוסיף לדפים הקיימים קובץ מוכן מראש, בשביל סורקים שלא מריצים קוד." ואחרי שהיא מאשרת: שלב א, צעד 2, בענף `feature/seo`, עם הבדיקות של צעדים 9 ו־10. רק אחרי "מיזגתי" ממשיכים לשלב ה.
 2. **שלבים ב ו־ג:** הנכס ב־Search Console מאומת? יש ב־`app/public` קובץ מפתח של IndexNow? מה שנעשה, ממשיכים ממנו בצעד 7. מה שעוד לא נעשה יכסה גם את הדפים החדשים כשיגיע תורו: שלב ב שולח את מפת האתר, ושלב ג שולח ל־IndexNow את כל הכתובות שבה.
 3. **קוראים מה העסק עושה,** בלי לשאול:
    - קובץ על העסק בתיקיית הפרויקט, בכל שם, למשל "על העסק.txt".
@@ -616,6 +981,8 @@ export type FaqItem = { question: string; answer: string }
 export const SERVICE_PAGES: ServicePage[] = []
 export const FAQ_ITEMS: FaqItem[] = []
 export const FAQ_UPDATED = 'YYYY-MM-DD'
+export const FAQ_TITLE = 'שאלות נפוצות | <שם העסק>' // השם בלשונית
+export const FAQ_DESCRIPTION = '' // התיאור לגוגל: משפט אחד, מתוך משפט הפתיחה של הדף
 ```
 
 - את הטקסט משנים בבקשה ל־Claude. אומרים לה את זה במשפט: «כדי לשנות טקסט, כתבי לי, למשל: "תוסיף לשאלות הנפוצות שאלה על..."». ועוד משפט: "מסך ניהול, שבו בעלת העסק משנה את הטקסט לבד, מחכה לכניסה ולהרשאות, במפגש הבא." (באתר האירועים שרות בנתה, השאלות נשמרות בטבלה במסד, עם מסך ניהול, ודפי האירועים עברו לשם אחר כך.)
@@ -634,7 +1001,7 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 - עברית, מימין לשמאל, ובקוד רק כיוונים לוגיים. מספרים, מיילים ואותיות לטיניות בתוך טקסט עברי נכנסים לתוך `<bdi>`, כמו בדף האודות. כותרת ראשית אחת, כותרות משנה בסדר, וטקסט חלופי לכל תמונה.
 - פועל או תואר על העסק לפי המין של שם העסק בסקיל המותג, כמו בסקיל about-page.
 
-**3. הכתובות.** בנתב, ברמה העליונה, לפני כל בדיקת כניסה ומחוץ למסגרת של המסכים הפנימיים, בדיוק כמו `/about` בסקיל about-page. כתובת אחת לכל דף שבקובץ התוכן, ולא כתובת אחת שמקבלת כל שם:
+**3. הכתובות: ברשימה של הדפים הציבוריים.** לא בנתב. הדפים החדשים נכנסים ל־`PUBLIC_PAGES` שב־`app/src/public-pages.tsx` (שלב א, צעד 2), אחרי הדפים שכבר שם. משם הם מקבלים כתובת בנתב, ברמה העליונה ולפני כל בדיקת כניסה, שם ותיאור, וקובץ מוכן מראש. כתובת אחת לכל דף שבקובץ התוכן, ולא כתובת אחת שמקבלת כל שם:
 
 ```tsx
 {SERVICE_PAGES.map((page) => (
@@ -648,12 +1015,12 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 - בעסק של אירועים, `/events/<slug>` במקום `/services/<slug>`. לכל הדפים של השלב אותה מילה.
 - לא בשום תפריט של המסכים הפנימיים. מגיעים אליהם מדף האודות, מהדפים עצמם, ומהחיפוש.
 
-**4. כותרת ותיאור בכל דף,** באותה דרך כמו בשלב א, צעד 2: הדף משנה את `document.title` ואת התגית `meta[name="description"]` שכבר ב־`app/index.html`, ומחזיר אותן כשיוצאים ממנו. יש כבר בפרויקט קובץ עזר לזה, משלב א (למשל `usePageMeta`)? משתמשים בו. לא כותבים `<title>` או `<meta>` ב־JSX, ולא מוסיפים ספרייה.
+**4. כותרת ותיאור בכל דף,** באותה דרך כמו בשלב א, צעד 2: השם והתיאור נכתבים ברשימה, מקובץ התוכן (`page.title` ו־`page.description`, ובדף השאלות `FAQ_TITLE` ו־`FAQ_DESCRIPTION`). הבנייה מראש כותבת אותם בקובץ של הדף, ו־`PublicPageMeta` כותב אותם כשעוברים לדף בלי לטעון מחדש. הדף עצמו לא כותב שום דבר ב־head: לא `<title>` או `<meta>` ב־JSX, ולא `document.title`. לא מוסיפים ספרייה.
 - **הכותרת:** `<שם השירות> | <שם העסק>`, ובדף השאלות `שאלות נפוצות | <שם העסק>`. כאן שם העסק ולא שם המערכת, כי מי שמחפשת שירות מחפשת את העסק. (כך גם באתר האירועים שרות בנתה.)
 - **התיאור:** משפט אחד, מתוך הפסקה הראשונה של הדף.
 - לכל דף כותרת ותיאור משלו, שונים מכל דף אחר באתר. (גוגל, כמו בשלב א, צעד 1: https://developers.google.com/search/docs/appearance/title-link ו־https://developers.google.com/search/docs/appearance/snippet)
 
-**5. נתונים מובנים,** בתוך הדף, באותה צורה כמו בלוק ה־`Organization` בדף האודות (`<script type="application/ld+json">`). הבלוק נבנה מאותו קובץ תוכן שממנו נבנה הדף, וכך מה שכתוב בו זהה למה שרואים. (כך גם באתר האירועים שרות בנתה: בלוק השאלות נבנה מאותן שאלות שבדף.) גוגל קוראת בלוק כזה גם כשהקוד בדפדפן כותב אותו. (נבדק במסמך הרשמי, 24.11.2026: https://developers.google.com/search/docs/appearance/structured-data/generate-structured-data-with-javascript)
+**5. נתונים מובנים,** בתוך הדף, באותה צורה כמו בלוק ה־`Organization` בדף האודות (`<script type="application/ld+json">`). הבלוק נבנה מאותו קובץ תוכן שממנו נבנה הדף, וכך מה שכתוב בו זהה למה שרואים. (כך גם באתר האירועים שרות בנתה: בלוק השאלות נבנה מאותן שאלות שבדף.) גוגל קוראת בלוק כזה גם כשהקוד בדפדפן כותב אותו. (נבדק במסמך הרשמי, 24.11.2026: https://developers.google.com/search/docs/appearance/structured-data/generate-structured-data-with-javascript) ועם הבנייה מראש, הבלוק כבר בקוד שחוזר מהכתובת, גם בשביל סורק שלא מריץ קוד. (נבדק ב־24.11.2026 באתר חי, בפרויקט בדיקה: בלוק `Service` בדף `/services/consulting`.)
 
 בדף שירות, `Service`:
 
@@ -713,10 +1080,11 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 - **בלי סוגריים חדשים.** לא מקצרים ל־`services/(consulting|monthly-support)$`: סוגריים כאלה בתוך הכלל לא עוברים.
 - **לא מוציאים את כל `services/` בבת אחת.** אז כל כתובת שמתחילה כך, גם שם שאין מאחוריו דף, תחזיר את המערכת בלי הסימון.
 - (נבדק ב־24.11.2026, במחשב ולא באתר חי: בספרייה path-to-regexp 6.1.0, עם ההגדרות שבהן Vercel קורא את הכלל, `strict`, `sensitive` ו־`delimiter: "/"`, כמו שהן כתובות בגרסה 54.13.0 של Vercel CLI. זו לא אותה בדיקה כמו בשלב א, צעד 8, ב־`@vercel/routing-utils` 5.3.3. עם הכלל שלמעלה יצאו מהסימון `/faq`, `/services/consulting` ו־`/services/monthly-support`, יחד עם הדפים הציבוריים והקבצים, וסומנו `/`, `/customers`, `/faq/`, `/FAQ`, `/faq-old`, `/faqs`, `/services`, `/services/`, `/services/other`, `/services/consulting/`, `/services/consulting-x` ו־`/services/consulting.html`. בלי `$` יצאו מהסימון גם `/faq-old`, `/faqs`, `/services/consulting-x` ו־`/services/consulting.html`. וסוגריים כמו `(services)` החזירו שגיאה. באתר שלה את הכלל בודקים בייצור, בצעד 6, וזה תנאי להמשך.)
+- (נבדק גם באתר חי, 24.11.2026, בפרויקט בדיקה נפרד, עם דף שירות אחד ובלי דף שאלות: עם `services/consulting$` ברשימה שבכלל, `/services/consulting` חזר בלי `X-Robots-Tag`, ו־`/services`, `/services/` ו־`/services/test-xyz` חזרו עם `X-Robots-Tag: noindex, nofollow`. שאר הכתובות שלמעלה, ו־`/faq`, נבדקו רק במחשב.)
 
 **2. `app/public/sitemap.xml`.** שורה לכל דף חדש, באותה צורה כמו בשלב א, צעד 5, וה־`lastmod` מה־`updated` של הדף (בדף השאלות, `FAQ_UPDATED`). גם `/about` מקבל את התאריך של היום, כי נוספו בו קישורים. (גוגל: `lastmod` הוא התאריך של השינוי המשמעותי האחרון, כמו שינוי בתוכן, בנתונים המובנים או בקישורים. נבדק במסמך הרשמי, 24.11.2026: https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap)
 
-**3. `app/public/llms.txt`.** הדפים נבנים בדפדפן, ולא כל הסורקים מריצים קוד (שלב א, "הדפים נבנים בדפדפן"). סורק כזה רואה בכתובת של דף שירות רק את מה שב־`app/index.html`, בלי השירות ובלי התשובות. לכן מה שבדפים נכתב גם בקובץ: אחרי "אודות" ולפני "יצירת קשר" נוספים שני חלקים:
+**3. `app/public/llms.txt`.** הדפים בנויים מראש (שלב א, צעד 2), ולכן גם סורק שלא מריץ קוד קורא את הטקסט שלהם. `llms.txt` מרכז את עיקר הטקסט במקום אחד, בשביל מנועים שקוראים אותו: אחרי "אודות" ולפני "יצירת קשר" נוספים שני חלקים:
 
 ```
 ## שירותים
@@ -731,13 +1099,14 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 - **מילה במילה מקובץ התוכן.** אותו טקסט כמו בדף, בלי ניסוח חדש ובלי פרט נוסף.
 - **כל שאלה בשורה, ולא ככותרת.** לפי llmstxt.org, אחרי הכותרת הראשית יש בקובץ רק כותרות `##`, ומתחת לכל אחת רשימה של קישורים, כל קישור עם הערה אחרי `:`. לכן כל שאלה היא קישור לדף השאלות, והתשובה היא ההערה שלו. (הפורמט נבדק ב־https://llmstxt.org, 24.11.2026.)
 - **הכלל של שלב א, צעד 6,** "רק מה שכתוב בדף האודות", מתרחב לכל הדפים הציבוריים: רק מה שכתוב בהם. מחיר נכנס רק אם הוא כתוב בדף השירות. מסכים פנימיים ומידע מתוך המערכת: אף פעם.
-- **מה זה נותן, בכנות:** גוגל כותבת שקובץ כזה לא יזיק ולא יעזור להופעה בחיפוש שלה, כי החיפוש שלה מתעלם ממנו ("as Google Search ignores them"). (נבדק במסמך הרשמי, 24.11.2026: https://developers.google.com/search/docs/fundamentals/ai-optimization-guide.) לגוגל עוזרים הדפים עצמם, כי היא מריצה את הקוד. הקובץ בשביל מנועי בינה אחרים, ורק אם הם קוראים אותו (שלב א, "הדפים נבנים בדפדפן").
+- **מה זה נותן, בכנות:** גוגל כותבת שקובץ כזה לא יזיק ולא יעזור להופעה בחיפוש שלה, כי החיפוש שלה מתעלם ממנו ("as Google Search ignores them"). (נבדק במסמך הרשמי, 24.11.2026: https://developers.google.com/search/docs/fundamentals/ai-optimization-guide.) לגוגל עוזרים הדפים עצמם. הקובץ בשביל מנועי בינה אחרים, ורק אם הם קוראים אותו (שלב א, "הדפים הציבוריים בנויים מראש").
 
 ### צעד 5: בדיקה במחשב, ושמירה
 
-1. **הכתובות זהות בחמישה מקומות.** **Claude** משווה את הדפים שבקובץ התוכן לכתובות בנתב, ברשימה שבכלל, במפת האתר וב־`llms.txt`. כל כתובת מופיעה בכולם, באותן אותיות. והטקסט ב־`llms.txt` זהה לטקסט שבקובץ התוכן, מילה במילה.
-2. **כמו בשלב א, צעד 9:** אין שגיאות טיפוסים, והבנייה עוברת.
+1. **הכתובות זהות בחמישה מקומות.** **Claude** משווה את הדפים שבקובץ התוכן ל־`PUBLIC_PAGES` (`app/src/public-pages.tsx`, וממנו הנתב והבנייה מראש), לרשימה שבכלל, למפת האתר ול־`llms.txt`. כל כתובת מופיעה בכולם, באותן אותיות. והטקסט ב־`llms.txt` זהה לטקסט שבקובץ התוכן, מילה במילה.
+2. **כמו בשלב א, צעד 9:** אין שגיאות טיפוסים, והבנייה עוברת. בשורה `prerendered` בסוף הבנייה מופיעה כל כתובת חדשה, ולכל אחת יש קובץ: `app/dist/services/<slug>/index.html`, ו־`app/dist/faq/index.html`. בכל קובץ, הבדיקות של שלב א, צעד 2, סעיף 6.2: הטקסט של הדף, השם, התיאור, `canonical`, ובלוק ה־`Service` או ה־`FAQPage`, עם אותו טקסט כמו בדף. דף חדש מפיל את הבנייה? שלב א, צעד 2, סעיף 5.
 3. **מריצים את המערכת במחשב, ובודקים ב־Playwright** כל דף חדש:
+   - ב־`vite preview` הקובץ המוכן נפתח בכתובת עם `/` בסוף, כמו `/services/<slug>/` (שלב א, צעד 2, סעיף 6.4). ב־console אין שגיאות ואין אזהרות.
    - הטקסט שלו, ולא מסך פנימי. גם בכתובת עם שתי רמות, העיצוב, הלוגו והתמונות נטענים.
    - ב־head בדיוק `<title>` אחד ובדיוק `meta[name="description"]` אחד, עם הטקסט של הדף הזה. ואחרי שעוברים ממנו למסך פנימי, חוזרים אלה של `app/index.html`.
    - בלוק הנתונים המובנים: JSON תקין, עם אותו טקסט כמו בדף.
@@ -748,7 +1117,7 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
    - **היא מתקנת?** מתקנים בקובץ התוכן, וב־`llms.txt` באותן מילים, בודקים שוב את סעיפים 1 עד 3, ומראים לה שוב את הדף שהשתנה. ושוב מחכים ל"מאשרת".
    - **היא בונה את המערכת לעסק של מישהי אחרת?** אומרים לה במשפט שכדאי לשלוח קודם את הטקסט לבעלת העסק, ולכתוב "מאשרת" אחרי שהיא אישרה.
    - רק אחרי "מאשרת" ממשיכים לסעיף 5.
-5. **שומרים גרסה, לפי "ענפים" למעלה,** בענף `feature/search-pages`: מוסיפים לגרסה את כל הקבצים של השלב, ורק אותם, לפי השם: קובץ התוכן, התבנית, דף השאלות, הנתב, דף האודות, `app/vercel.json`, `app/public/sitemap.xml` ו־`app/public/llms.txt`. יש `CHANGELOG.md`? באותה גרסה מוסיפים תחת `[Unreleased]` ← `### נוסף` את השורה "נוספו דפים לשירותים של העסק ודף שאלות נפוצות, שעוזרים למצוא את העסק בגוגל ובמנועי הבינה" (השורה כבר שם? לא מוסיפים שוב. אין קובץ? לא יוצרים). בודקים ב־`git status` שלא נשאר בחוץ קובץ של השלב. `.env`, התיקייה "בדיקות" ו־`.playwright-mcp` לא נכנסים. דוחפים, ונותנים לה קישור ל־Pull Request, עם כותרת ותיאור בעברית. היא ממזגת בעצמה, ב־GitHub. **הבדיקה בייצור, מפת האתר ו־IndexNow מחכים עד שהיא כותבת "מיזגתי".**
+5. **שומרים גרסה, לפי "ענפים" למעלה,** בענף `feature/search-pages`: מוסיפים לגרסה את כל הקבצים של השלב, ורק אותם, לפי השם: קובץ התוכן, התבנית, דף השאלות, `app/src/public-pages.tsx`, דף האודות, `app/vercel.json`, `app/public/sitemap.xml` ו־`app/public/llms.txt`. `App.tsx` לא משתנה בשלב הזה, ו־`app/dist` לא נכנס לגרסה. יש `CHANGELOG.md`? באותה גרסה מוסיפים תחת `[Unreleased]` ← `### נוסף` את השורה "נוספו דפים לשירותים של העסק ודף שאלות נפוצות, שעוזרים למצוא את העסק בגוגל ובמנועי הבינה" (השורה כבר שם? לא מוסיפים שוב. אין קובץ? לא יוצרים). בודקים ב־`git status` שלא נשאר בחוץ קובץ של השלב. `.env`, התיקייה "בדיקות" ו־`.playwright-mcp` לא נכנסים. דוחפים, ונותנים לה קישור ל־Pull Request, עם כותרת ותיאור בעברית. היא ממזגת בעצמה, ב־GitHub. **הבדיקה בייצור, מפת האתר ו־IndexNow מחכים עד שהיא כותבת "מיזגתי".**
 
 ### צעד 6: בודקים בייצור, ורק אז ממשיכים
 
@@ -758,6 +1127,8 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 2. **הכותרות (headers) של התשובה:**
    - כל דף חדש: 200, **בלי `X-Robots-Tag`**, ובלי תגית `robots` או `googlebot` עם noindex בקוד שחוזר.
    - ממשיכים לקבל `X-Robots-Tag: noindex, nofollow`: `/`, `/index.html`, מסך פנימי, וגם `/faq/`, `/services`, ושם של שירות שאין לו דף, כמו `/services/test-xyz`.
+   - **הקוד שחוזר, לפני שהוא רץ:** **Claude** מוריד כל דף חדש בלי דפדפן (`curl -s`), ובודק שיש בו הטקסט של הדף, השם, התיאור, `canonical` לכתובת שלו, ובלוק ה־`Service` או ה־`FAQPage` (שלב א, צעד 2, סעיף 7). ב־`/services/test-xyz`, לעומת זאת, `<div id="root"></div>` ריק.
+   - (נבדק ב־24.11.2026 באתר חי, בפרויקט בדיקה, עם דף שירות אחד: `/services/consulting` חזר 200 בלי `X-Robots-Tag`, עם הטקסט ובלוק ה־`Service` בקוד שחזר. `/services`, `/services/` ו־`/services/test-xyz` חזרו 200 עם `X-Robots-Tag` ו־`#root` ריק.)
    - הדפים הציבוריים הקודמים והקבצים: כמו בשלב א, צעד 10.
 3. **`/sitemap.xml` ו־`/llms.txt`:** חזר התוכן החדש, בסוג הנכון, וב־`llms.txt` עם `charset=utf-8`.
 4. **אין סוד בקוד של האתר:** אותה בדיקה כמו בשלב א, צעד 10, סעיף 5. הדפים החדשים הוסיפו קוד, ולכן בודקים שוב.
@@ -790,12 +1161,12 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 
 כשהיא כותבת "נוסף שירות", או מבקשת דף לשירות אחד:
 1. בודקים רק את השירות הזה, מול המבחנים של צעד 1: הוא שירות אמיתי, יש לו פרטים משלו, והוא לא עונה על אותו חיפוש כמו דף שכבר קיים. דומה מדי לדף קיים? מציעים להוסיף אותו לדף הקיים, ומחכים לתשובה.
-2. שואלים את הפרטים החסרים (צעד 2), ובונים: רשומה חדשה בקובץ התוכן, וקישור אליה בדף האודות ובדפי השירות האחרים (צעד 3).
+2. שואלים את הפרטים החסרים (צעד 2), ובונים: רשומה חדשה בקובץ התוכן, וקישור אליה בדף האודות ובדפי השירות האחרים (צעד 3). הרשומה נכנסת לבד לרשימה של הדפים הציבוריים, לנתב ולבנייה מראש, דרך `SERVICE_PAGES`.
 3. מוסיפים את הכתובת לרשימה שבכלל, למפת האתר ול־`llms.txt` (צעד 4), בודקים ושומרים (צעד 5), ובודקים בייצור (צעד 6).
 4. שולחים ל־IndexNow את הכתובת החדשה, ואת הדפים שנוסף בהם קישור. את מפת האתר לא שולחים שוב: דף אחד הוא שינוי קל, וגוגל תחזור אליה לבד (צעד 7, סעיף 1).
 5. שאלה חדשה לשאלות הנפוצות: אותה דרך, בלי כתובת חדשה ובלי שינוי בכלל.
 
-**שירות שכבר לא ניתן:** מורידים את הדף, באותה גרסה, מקובץ התוכן, מהנתב, מהרשימה שבכלל, ממפת האתר, מ־`llms.txt` ומהקישורים. מאותו רגע הכתובת שלו מחזירה את המערכת, עם "לא לחיפוש", וגוגל תוריד אותה מהחיפוש אחרי שתסרוק אותה שוב. (noindex מוציא דף מהחיפוש אחרי הסריקה הבאה: https://developers.google.com/search/docs/crawling-indexing/block-indexing. בקשה להסרה מהירה ב־Search Console לא בסקיל הזה.)
+**שירות שכבר לא ניתן:** מורידים את הדף, באותה גרסה, מקובץ התוכן (ומשם הוא יוצא לבד מהנתב ומהבנייה מראש: הקובץ המוכן שלו לא נבנה יותר), מהרשימה שבכלל, ממפת האתר, מ־`llms.txt` ומהקישורים. מאותו רגע הכתובת שלו מחזירה את המערכת, עם "לא לחיפוש", וגוגל תוריד אותה מהחיפוש אחרי שתסרוק אותה שוב. (noindex מוציא דף מהחיפוש אחרי הסריקה הבאה: https://developers.google.com/search/docs/crawling-indexing/block-indexing. בקשה להסרה מהירה ב־Search Console לא בסקיל הזה.)
 
 ## כשמשהו נכשל
 
@@ -806,10 +1177,13 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 | `llms.txt` נראה בדפדפן כמו קוד: משמאל לימין, עם `#` וקישורים | זה תקין. הדפדפן מציג כך כל קובץ טקסט. אומרים לה: "הקובץ נכתב בשביל מנועי הבינה, ולכן בדפדפן הוא נראה כמו קוד. זה תקין." |
 | באינטרנט, האותיות ב־`llms.txt` שבורות: סימנים במקום עברית | בודקים ש־`app/public/llms.txt` שמור כ־UTF-8, ואיזה `charset` חוזר בתשובה (שלב א, צעד 10). במחשב, לפני שהקובץ עלה, זה צפוי, ולא מתקנים (שלב א, צעד 9) |
 | ב־head של דף ציבורי שתי כותרות או שני תיאורים | הדף כותב `<title>` או `<meta>` ב־JSX, או שספרייה הוסיפה תגית ליד אלה של `app/index.html`. שלב א, צעד 2 |
+| `npm run build` נעצר ב־`prerender failed:` | דף ציבורי, או קובץ שהוא מייבא, נוגע בדפדפן, בנתונים של המערכת או בהגדרה שחסרה, או שהרשימה לא תואמת ל־`app/index.html`. ההודעה מראה את הקובץ ואת השורה. שלב א, צעד 2, סעיף 5 |
+| בייצור, בקוד שחוזר מדף ציבורי `#root` ריק | Vercel לא מריץ את `npm run build`, הגרסה עוד לא עלתה, או ש־`cleanUrls` נכנס ל־`vercel.json`. שלב א, צעד 2, סעיף 7.5 |
+| מסך פנימי מחזיר 404 בכניסה ישירה, ובמחשב הוא נפתח | `cleanUrls` ב־`vercel.json` שובר את הכלל של `rewrites`. מורידים אותו (שלב א, צעד 2, סעיף 4.5), בענף `fix/seo`, מעלים לפי "ענפים", ואחרי "מיזגתי" בודקים שוב |
 | דף ציבורי עם `X-Robots-Tag`, או עם תגית noindex בקוד | הדף חסר ברשימה שבכלל, כתוב בה אחרת, כלל ישן חל עליו, או שב־`app/index.html` נשארה תגית noindex. מתקנים לפני כל דבר אחר |
 | מסך פנימי, או `/index.html`, בלי `X-Robots-Tag` | בודקים ש־`vercel.json` בתיקייה ש־Vercel בונה ממנה, שהכלל בו כמו בשלב א, צעד 8, ושהגרסה עלתה. עדיין בלי? עוצרים, ורות תבדוק (שלב א, צעד 10) |
 | קובץ אמיתי, כמו תמונה או קובץ קוד, עם `X-Robots-Tag` | הסיומת שלו חסרה ברשימת הסיומות שבכלל. מוסיפים אותה, חוץ מ־`html` (שלב א, צעד 8), בענף `fix/seo`, מעלים לפי "ענפים", ואחרי "מיזגתי" בודקים שוב |
-| דף ציבורי חדש חסר ברשימה שבכלל או במפת האתר | "לפני שמתחילים", סעיף 5: הרשימה מול הנתב |
+| דף ציבורי חדש חסר ב־`PUBLIC_PAGES`, ברשימה שבכלל או במפת האתר | "לפני שמתחילים", סעיף 5: הרשימה מול הנתב |
 | Search Console מראה דף הסבר עם כפתור התחלה (**קדימה, מתחילים**), ולא מסך כניסה | זה קורה גם כשהיא מחוברת, למשל כשבחלון כמה חשבונות. קודם בודקים את החשבונות לפי `/u/<n>/`, ולוחצים על הכפתור רק כשהחשבון שלה לא מחובר (שלב ב, צעד 1) |
 | **אמת** (Verify) נכשל | הקובץ לא בייצור (חזר דף המערכת), הכתובת של הנכס לא מדויקת (`https`, הכתובת הקצרה, `/` בסוף), או שהנכס נפתח על כתובת ארוכה של Vercel. מתקנים (קובץ באתר: בענף `fix/seo`, מעלים לפי "ענפים", ומחכים ל"מיזגתי"), ולוחצים שוב |
 | **Couldn't fetch** במפת האתר | בודקים את הקובץ בייצור. תקין? בודקים שוב מאוחר יותר |
@@ -828,6 +1202,7 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 | דף של שלב ה עם `X-Robots-Tag` | הכתובת חסרה ברשימה שבכלל, כתובה שם באותיות אחרות מבנתב, או בלי `$` אחריה (שלב ה, צעד 4). מתקנים לפני כל דבר אחר |
 | כתובת כמו `/services/test-xyz` חוזרת בלי `X-Robots-Tag` | בכלל יצאו כל הכתובות שמתחילות ב־`services/`, או שחסר `$`. כל כתובת בשמה המלא (שלב ה, צעד 4) |
 | דף של שלב ה בלי עיצוב או בלי לוגו | בכתובת עם שתי רמות, קישור או תמונה שלא כתובים מ־`/`. כותבים אותם מ־`/`, כמו `/logo.png` (שלב ה, צעד 3) |
+| דף של שלב ה בייצור, ובקוד שחוזר ממנו `#root` ריק | הדף לא ב־`PUBLIC_PAGES`, או שנכנס לנתב ישירות ולא דרך הרשימה. מעבירים אותו לרשימה (שלב ה, צעד 3, סעיף 3), ובודקים את השורה `prerendered` בבנייה |
 | אחרי שינוי בכלל, הגרסה לא עולה ב־Vercel | בכלל נוספו סוגריים, או שה־JSON לא תקין. בתוך הכלל רק `(?!...)` ו־`(?:...)`, כמו בדוגמה. (מה Vercel כותב במקרה כזה: לא נבדק עדיין. במחשב, הספרייה שקוראת את הכלל עצרה בשגיאה על סוגריים כאלה: 24.11.2026) |
 | הטקסט ב־`llms.txt` שונה מהטקסט בדף | הקובץ לא עודכן אחרי שינוי בקובץ התוכן. מעתיקים מקובץ התוכן, מילה במילה (שלב ה, צעד 5, סעיף 1) |
 
@@ -860,7 +1235,7 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 | רק דף ציבורי אחד הוא הזהות לגוגל, עם תגיות ונתונים מובנים; מערכת סגורה נראית לגוגל ריקה | project-about-page של רות, ו־about-page של הקורס |
 | הכותרת, התיאור, תגיות ה־`og:` ובלוק ה־`Organization` של דף האודות | project-about-page (Part 3, Part 4), דרך about-page. כאן רק בודקים |
 | כותרת ותיאור לכל דף, שונים זה מזה | audit-website (meta-title, meta-description, כותרות כפולות), האתר של רות (כותרת לכל דף, עם " \| Clearלי"), והמסמכים של גוגל |
-| כותרת אחת ותיאור אחד ב־head, דרך `document.title` והתגית הקיימת | המסמך של React על `<title>`, בדיקה בהרצה של React 19 על דף לדוגמה (19.11.2026), והמסמך של גוגל על JavaScript |
+| כותרת אחת ותיאור אחד ב־head: מרשימה אחת, בקובץ המוכן, ובמעבר בין מסכים דרך `document.title` והתגית הקיימת | המסמך של React על `<title>`, בדיקה בהרצה של React 19 על דף לדוגמה (19.11.2026), המסמך של גוגל על JavaScript, והבדיקה בפרויקט בדיקה, באתר חי (24.11.2026) |
 | בלי תגית noindex ב־`app/index.html` | המסמך של גוגל על JavaScript |
 | robots.txt: כולם מוזמנים, וכל סורק בשמו; הפניה ל־llms.txt ולמפת האתר | ai-seo (בדיקת הבוטים, והקובץ ב־platform-ranking-factors), והאתר של רות (רשימת הסורקים, השורה הראשונה והשורה האחרונה) |
 | לא חוסמים בוטים של בינה | ai-seo ("What NOT to Do", סעיף 5) |
@@ -884,7 +1259,11 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 | ייבוא ל־Bing מ־Search Console, הרשאה, ומסך פתיחה ריק | site-seo-geo, והבלוג של Bing. המסכים שבדרך, "באותה לשונית", הכפתור "המשך", האתרים שמגיעים מסומנים, ומסך הפתיחה הריק אחרי Import: ההרצה על אתר הדמו (19.11.2026) |
 | IndexNow: קובץ מפתח, בקשה אחת, ונפילה ל־`www.bing.com/indexnow` | site-seo-geo, `scripts/indexnow.mjs` באתר של רות, ai-seo (חלק Copilot), ו־indexnow.org |
 | מה Google-Extended עושה | המסמך של גוגל (במקום מה שכתוב ב־ai-seo) |
-| דפים שנבנים בדפדפן, וסורק שלא מריץ קוד | ai-seo ("Agentic Experiences", "What NOT to Do" סעיף 6), okf.md (llms.txt הוא שלט שמפנה לדפים), והמסמך של גוגל על JavaScript. בגלל זה, בשלב ה הסיכומים והשאלות נכנסים גם ל־llms.txt |
+| דפים שנבנים בדפדפן, סורק שלא מריץ קוד, ולמה בונים מראש | ai-seo ("Agentic Experiences", "What NOT to Do" סעיף 6), okf.md (llms.txt הוא שלט שמפנה לדפים), והמסמך של גוגל על JavaScript ("server-side or pre-rendering is still a great idea"). הסיכומים והשאלות של שלב ה נשארים גם ב־llms.txt: ראו "מה שונה מהמקורות", סעיף 31 |
+| בנייה מראש של הדפים הציבוריים: `entry-server.tsx`, `scripts/prerender.mjs`, וקובץ `dist/<הכתובת>/index.html` לכל דף | הבקשה של רות (24.11.2026), `scripts/prerender.mjs` באתר של רות (גרסה 8e42c3a), המדריך של Vite ל־SSR ("Pre-Rendering / SSG"), `prerenderToNodeStream` של React, ו־`StaticRouter` של React Router (כולם נבדקו ב־24.11.2026) |
+| בלי `cleanUrls`, וקבצים בתיקייה לכל כתובת | המסמך של Vercel על `vercel.json` (`cleanUrls`, ו־"precedence is given to the filesystem prior to rewrites being applied"), המסמך של גוגל על קובץ האימות ("does not follow redirects"), והבדיקה באתר חי, בפרויקט בדיקה (24.11.2026) |
+| `createRoot` ולא `hydrateRoot` | המסמך של React על `createRoot` (24.11.2026), והבדיקה בפרויקט הבדיקה. ראו "מה שונה מהמקורות", סעיף 7 |
+| מה מפיל את הבנייה מראש, ו־`typeof window` ולא `typeof localStorage` | המסמך של Node על `localStorage` (24.11.2026), בדיקה בבנייה ב־Vercel (Node v26.13.1) ובמחשב (Node 22), ובדיקה של supabase-js 2.107.0 ב־Node (24.11.2026) |
 | כתובות בלי `#`, וקישורים רגילים בין הדפים | המסמך של גוגל על JavaScript (History API, קישורי `<a href>`) |
 | הבדיקות בשלב ד ובשער של שלב א, כולל סוד בקוד | הקטגוריות של audit-website (Core SEO, Social, Schema, Crawlability, Content, Images, Links, Security) |
 | הטוקן של Supabase (`sbp_`) כסוד | backup-and-keep-alive ("סודות"), והמסמכים של Supabase (הצורה) |
@@ -924,19 +1303,25 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 **ההרצה המלאה לפני שהסקיל יוצא לתלמידות** נעשתה ב־19.11.2026, על אתר הדמו של הקורס, בחשבון הגוגל של הדמו. מה שנבדק בה כתוב בסקיל כמו שנראה במסך, כולל השפה של המסך ושמות הכפתורים, והתיקונים שלה כבר בסקיל. מה שעוד מסומן "לא נבדק עדיין" לא הגיע להרצה, או שלא ניתן לבדוק אותו בה: השיטה של תג HTML, אם נכס URL-prefix מספיק לאימות המותג, אם מנועי הבינה מכבדים את `X-Robots-Tag`, איך מוצאים את המספר של החשבון ב־`/u/<n>/`, הדרך מרשימת הנכסים ו־My Sites ב־Bing, האישור של בקשה שהתקבלה, הבקשה החוזרת ביום שאחרי, היציאה מהחשבונות, ומייל מגוגל על noindex. גם תוכנית ב, ההודעה לרות, המצבים של אחרי שבוע, והעלאה ל־GitHub עם בנייה של Vercel ממנו לא הגיעו להרצה. **בעוד שבוע בערך:** בודקים בתיבת הדואר של הדמו ובפעמון של Search Console אם גוגל שלחה מייל על המסכים שמסומנים noindex.
 
 **שלב ה** נכתב ב־24.11.2026, ועוד לא נבדק בהרצה מלאה: לא הבנייה על אתר הדמו, לא הכלל עם הכתובות החדשות באתר חי, ולא השליחה החוזרת של מפת האתר. הכלל נבדק רק במחשב (שלב ה, צעד 4).
+**הבנייה מראש** (שלב א, צעד 2) נכתבה ב־24.11.2026, ונבדקה באותו יום באתר חי, בפרויקט בדיקה נפרד ב־Vercel (`ofek-prerender-test`, בחשבון של הדמו), עם עותק של מערכת אופק ועם דף שירות אחד בכתובת עם שתי רמות. באותה בדיקה נבדק באתר חי גם הכלל של "לא לחיפוש" עם `services/consulting$`. היא לא נבדקה באתר הדמו של הקורס, במערכת בלי נתב באתר חי (רק בנייה במחשב), ולא מול גוגל, ב"בדיקה של כתובת אתר פעילה".
 
 1. **רק הדפים הציבוריים.** ai-seo, audit-website והאתר של רות כתובים לאתר שכל הדפים בו ציבוריים. כאן רוב המערכת היא מסכים פנימיים, ולכן הם מסומנים "לא לחיפוש", ורק הדפים הציבוריים נכנסים למפת האתר ול־llms.txt.
 2. **הכלל של "לא לחיפוש".** באתר של רות הכותרת `X-Robots-Tag: noindex, nofollow` חלה על `/admin/` ועל `/api/`. כאן היא חלה על כל כתובת, חוץ מהדפים הציבוריים, מקובץ האימות של גוגל ומקבצים לפי הסוג שלהם, כי המסכים הפנימיים יושבים בשורש האתר ולא תחת קידומת אחת. הערך זהה. בנוסח הראשון של הסקיל יצאה מהכלל כל כתובת עם נקודה, ובאתר הדמו `/index.html`, `/about.html` וכתובות דומות החזירו את המערכת בלי הכותרת. הנוסח החדש נבדק באתר החי (19.11.2026). הפער שנשאר: כתובת שנגמרת באחת הסיומות שברשימה, או שנראית כמו קובץ האימות של גוגל, ואין מאחוריה קובץ. ההשוואה של רשימת הסיומות לקבצים שלה, ו"לא את `html`", הן בלי מקור: הן באות מהמעבר לרשימת סיומות.
 3. **בלי `Disallow` ב־robots.txt.** האתר של רות גם חוסם את `/admin/` ואת `/api/` ב־robots.txt. כאן לא, כי לפי גוגל robots.txt לא מוציא דף מהחיפוש, ודף חסום לא מראה לגוגל את ה־noindex שלו. ככה ה־noindex הוא שעובד. הנימוק הזה הוא של גוגל. אם הסורקים של מנועי הבינה מכבדים את `X-Robots-Tag`: לא נבדק עדיין (גוגל עצמה כותבת שמנועים אחרים עלולים להבין noindex אחרת). אצל רות שורות ה־`Disallow` חלות גם על כל הסורקים של הבינה, ובמפגש 4 המסכים הפנימיים בדרך כלל עוד לא מאחורי כניסה (legal-pages). **לשאול את רות.**
 4. **robots.txt בקבוצה אחת.** באתר של רות יש קבוצה לכל סורק, כי כל אחת חוזרת על שורות ה־`Disallow`. בלי השורות האלה, קבוצה אחת עם כל השמות שווה לה, לפי גוגל, וכך גם הפורמט ב־ai-seo. רשימת הסורקים היא של האתר של רות, והיא רחבה מזו של ai-seo. CCBot מוזמן, כמו אצל רות (ב־ai-seo חסימה שלו היא החלטה עסקית).
 5. **Google-Extended.** ב־ai-seo כתוב שהוא של Gemini ושל AI Overviews. לפי גוגל, הוא קובע שימוש באימון Gemini ובתשובות שלו, ולא משפיע על ההופעה בחיפוש. הסקיל אומר מה שגוגל אומרת, והסורק נשאר מוזמן, כמו אצל רות.
-6. **כותרת ותיאור מהקוד של הדף.** באתר של רות כל דף נבנה מראש כקובץ HTML מלא, עם הכותרת שלו. כאן הדף משנה בדפדפן את הכותרת ואת התיאור שכבר ב־`index.html`, בלי ספרייה חדשה (הכלל של about-page) ובלי תגית שנייה. גוגל קוראת אותם (המסמך של גוגל על JavaScript).
-7. **בלי בנייה מראש של הדפים (prerender).** אצל רות כל דף ציבורי נבנה מראש כ־HTML מלא. גם ai-seo ("What NOT to Do", סעיף 6) וגם המסמך של גוגל על JavaScript ממליצים על בנייה מראש, כי לא כל הסורקים מריצים קוד. כאן סורק כזה רואה בכל כתובת רק את ה־head של `app/index.html`: בדף האודות את השם, התיאור ותגיות ה־`og:` מהסקיל about-page, ובמדיניות ובתנאים את אותו head של דף האודות. בלי גוף הדף, בלי המייל ובלי הנתונים המובנים. `llms.txt` עוזר רק לסורק שקורא אותו: זו הצעה (llmstxt.org), ואף מנוע לא כתוב שם כמי שקורא אותו לבד. בנייה מראש היא שינוי באופן שבו המערכת בנויה, ולכן היא לא בסקיל. **לשאול את רות.**
+6. **כותרת ותיאור מרשימה אחת.** באתר של רות כל דף נבנה מראש כקובץ HTML מלא, עם הכותרת שלו. כאן גם, מאז הבנייה מראש (סעיף 7): השם והתיאור של כל דף ציבורי כתובים ברשימה אחת, `app/src/public-pages.tsx`, ומשם הם נכתבים בקובץ המוכן. במעבר בין מסכים בלי טעינה מחדש, הרכיב `PublicPageMeta` משנה את הכותרת ואת התיאור שכבר ב־`index.html`, בלי ספרייה חדשה (הכלל של about-page) ובלי תגית שנייה. גוגל קוראת אותם (המסמך של גוגל על JavaScript). הנוסח הקודם, קובץ עזר בכל דף שמחזיר כשיוצאים ממנו את הערכים שהיו קודם, יצא: עם קובץ מוכן, הערכים שהיו קודם הם של הדף שנטען, ולא של `index.html`, ומסך פנימי היה מקבל את השם של דף ציבורי.
+7. **בנייה מראש של הדפים הציבוריים (prerender).** רות ביקשה אותה ב־24.11.2026, והיא בשלב א, צעד 2. גם ai-seo ("What NOT to Do", סעיף 6) וגם המסמך של גוגל על JavaScript ממליצים עליה, כי לא כל הסורקים מריצים קוד. כמו באתר של רות: מהתבנית `dist/index.html`, קובץ `dist/<הכתובת>/index.html` לכל דף, מסקריפט `scripts/prerender.mjs` שרץ אחרי הבנייה לשרת של Vite, וכל בעיה עוצרת את הבנייה. מה שונה:
+   - **רק הדפים הציבוריים** נבנים מראש. אצל רות, כל האתר.
+   - **בלי `trailingSlash: true`,** שאצל רות כל הכתובות נגמרות בו. כאן הכתובות בלי `/` בסוף, ו־`/about/` מסומן "לא לחיפוש".
+   - **בלי `cleanUrls`.** בבדיקה באתר חי הוא שבר את הכלל של `rewrites` (המסכים הפנימיים החזירו 404) ונתן הפניה לקובץ האימות של גוגל.
+   - **`createRoot` ולא `hydrateRoot`.** React כותבת שעל HTML שנבנה מראש משתמשים ב־`hydrateRoot`. כאן `createRoot` מצייר את הדף מחדש, כי `hydrateRoot` דורש ציור ראשון זהה לגמרי לקובץ, וכל הבדל נותן שגיאות. בבדיקה: בלי שום הודעה ב־console. **לשאול את רות:** לעבור ל־`hydrateRoot` אחרי שזה רץ אצל כמה תלמידות, או להשאיר `createRoot`.
+   - **רשימה אחת של הדפים הציבוריים,** שממנה גם הנתב. הסקילים about-page ו־legal-pages מוסיפים `<Route>` ישר לנתב, ולכן כשהם רצים אחרי שלב א, הדף שלהם עובר לרשימה ב"לפני שמתחילים", סעיף 5. **לשאול את רות** אם להוסיף לסקילים האלה משפט על הרשימה (כמו בסעיף 25).
 8. **נתונים מובנים.** באתר של רות יש מערך שלם (WebSite, Organization, Person, WebPage, BreadcrumbList, Course, Event, Service, FAQPage, Article). כאן ה־`Organization` של about-page בדף האודות, ובשלב ה, אם נבנה, `Service` בכל דף שירות ו־`FAQPage` בדף השאלות (סעיפים 32 ו־33). HowTo ו־Article, שמוזכרים ב־ai-seo, לא נכנסו: אין בדפים האלה תוכן כזה. גם `WebSite` ו־`WebPage`, שאצל רות נמצאים בכל דף, כולל מדיניות הפרטיות ותנאי השימוש, לא נכנסו לכאן. **לשאול את רות:** להוסיף אותם לדפים הציבוריים, או להשאיר רק את ה־`Organization` של about-page.
-9. **תגיות `og:` ו־`canonical`.** תגיות ה־`og:` נשארות כמו שהסקיל about-page כתב אותן ב־`index.html`, לכל הכתובות. אין `og:` לכל דף. audit-website בודק `canonical`. כאן אין `canonical`, כי ב־`index.html` הוא היה חל על כל הכתובות. מאותה סיבה אין שם תגית `robots` עם noindex.
+9. **תגיות `og:` ו־`canonical`.** תגיות ה־`og:` נשארות כמו שהסקיל about-page כתב אותן ב־`index.html`, לכל הכתובות, וגם בקובץ המוכן של כל דף ציבורי, כולל `og:url` של `/about`. אין `og:` לכל דף. **לשאול את רות** אם לכתוב גם אותן לכל דף, בבנייה מראש. audit-website בודק `canonical`: הוא נכתב רק בקובץ המוכן של כל דף ציבורי, לכתובת שלו, ולא ב־`index.html`, כי שם הוא היה חל על כל הכתובות. מאותה סיבה אין שם תגית `robots` עם noindex. במעבר בין מסכים בלי טעינה מחדש `canonical` לא משתנה (גוגל: לא לשנות אותו מהקוד).
 10. **התאריך במפת האתר.** באתר של רות זה יום הפרסום של התוכן. כאן תאריך העדכון שכתוב בדף, או התאריך של הגרסה האחרונה ששינתה אותו. בלי `priority` ו־`changefreq`, שגוגל מתעלמת מהם.
 11. **llms.txt קצר יותר.** באתר של רות יש בו פסקה באנגלית, פסקת עובדות, ופרקים של קורסים, כתבות ועבודות. כאן רק שם המערכת, התיאור, שורת העסק, "אודות" ו"יצירת קשר", מתוך דף האודות, ואחרי שלב ה גם "שירותים" ו"שאלות נפוצות", מילה במילה מהדפים (סעיף 31). הפסקה באנגלית לא נכנסה, כי התלמידה צריכה לאשר כל מילה שיוצאת בשם העסק. **לשאול את רות.**
-12. **בלי llms-full.txt.** אצל רות הוא מחזיק את הטקסט המלא של דפי הקורסים, של "עליי" ושל השאלות הנפוצות. במערכת של תלמידה, כל הטקסט הציבורי של דף האודות כבר נכנס ל־llms.txt, וקובץ מלא היה חוזר עליו. גם אחרי שלב ה: יש רק שלושה עד שישה דפים, ולכן הפסקה הראשונה של כל שירות וכל השאלות והתשובות נכנסות ל־llms.txt עצמו. באתר האירועים שרות בנתה הטקסט של השאלות לא נכנס לאף קובץ: גם ב־llms.txt וגם ב־llms-full.txt יש רק קישור לדף השאלות, כי שם הדפים מגיעים מהשרת. **לשאול את רות.**
+12. **בלי llms-full.txt.** אצל רות הוא מחזיק את הטקסט המלא של דפי הקורסים, של "עליי" ושל השאלות הנפוצות. במערכת של תלמידה, כל הטקסט הציבורי של דף האודות כבר נכנס ל־llms.txt, וקובץ מלא היה חוזר עליו. גם אחרי שלב ה: יש רק שלושה עד שישה דפים, ולכן הפסקה הראשונה של כל שירות וכל השאלות והתשובות נכנסות ל־llms.txt עצמו. באתר האירועים שרות בנתה הטקסט של השאלות לא נכנס לאף קובץ: גם ב־llms.txt וגם ב־llms-full.txt יש רק קישור לדף השאלות, כי שם הדפים מגיעים מהשרת. כאן, מאז הבנייה מראש, גם הדפים בנויים מראש, והשאלה עברה לסעיף 31. **לשאול את רות.**
 13. **הדפים המשפטיים לא ב־llms.txt.** גם באתר של רות הם לא שם. הם במפת האתר.
 14. **שיטת האימות.** קובץ HTML, כמו באתר של רות. תגית HTML ב־`index.html` רק אם ההורדה לא הגיעה פעמיים. אם התגית עובדת כש־`/` מסומן "לא לחיפוש": לא נבדק עדיין.
 15. **בקשה להוספה רק ל־`/about`.** אצל רות נשלחו בקשות לכמה דפים. כאן שאר הדפים מגיעים ממפת האתר.
@@ -955,7 +1340,7 @@ export const FAQ_UPDATED = 'YYYY-MM-DD'
 28. **דפים לחיפוש במערכת ניהול (שלב ה).** programmatic-seo בנוי למאות ואלפי דפים מנתונים, ו־pillar-content-architecture לדף מרכזי ארוך עם 8 עד 15 דפים סביבו. כאן שלושה עד שישה דפים. מ־programmatic-seo נלקחו רק המבחנים: לכל דף ערך משלו, שני דפים שאפשר להבדיל רק לפי השם מתאחדים, ודף בלי הפרטים שהוא צריך לא נבנה. מ־pillar-content-architecture נלקחו הקישורים בין הדפים, ושאין שני דפים לאותו נושא. בלי מספר מילים: גוגל שואלת אם כותבים למספר מילים מסוים כי שמעו שהיא מעדיפה אותו. דף האודות משמש כמרכז, ואין דף `/services` שמרכז את השירותים. **לשאול את רות** אם היא רוצה דף כזה.
 29. **בלי מחקר של מילות חיפוש.** seo-keyword מתחיל ב־200 עד 500 חיפושים מכלי או מ־Search Console, ומחליט על הסוג לפי מה שרואים בתוצאות של גוגל. כאן אין כלי, ולמערכת חדשה עוד אין נתונים: את הסוג מסיקים ממה שהעסק עושה, ולא כותבים כמה מחפשים. Ahrefs ושאר הכלים בתשלום לא בשימוש. **לשאול את רות** אם לחזור לזה אחרי כמה שבועות, עם החיפושים שב־Search Console.
 30. **שם העסק בכותרת.** בשלב א הכותרת היא `<שם הדף> | <שם המערכת>`. בדפי שלב ה היא `<שם השירות> | <שם העסק>`, כמו באתר האירועים שרות בנתה, כי מי שמחפשת שירות מחפשת את העסק, ולא את מערכת הניהול שלו. כך באותו אתר יש שני סיומים שונים לכותרות. **לשאול את רות.**
-31. **הדפים נבנים בדפדפן, ובאתר האירועים שרות בנתה בשרת.** אתר האירועים שרות בנתה בנוי ב־Next.js, וכל דף מגיע מהשרת עם הטקסט והנתונים המובנים. כאן סורק שלא מריץ קוד רואה בכל דף חדש רק את ה־head של `app/index.html`. לכן הסיכום של כל שירות וכל השאלות והתשובות נכנסים ל־llms.txt, מילה במילה. וזה עוזר רק לסורק שקורא את הקובץ: גוגל כותבת שהחיפוש שלה מתעלם ממנו, ולגוגל עוזרים הדפים, כי היא מריצה את הקוד. עם דפי תוכן, השאלה של סעיף 7, בנייה מראש של הדפים (prerender), חשובה הרבה יותר. **לשאול את רות.**
+31. **הדפים בנויים מראש, ובאתר האירועים שרות בנתה מגיעים מהשרת.** אתר האירועים שרות בנתה בנוי ב־Next.js, וכל דף מגיע מהשרת עם הטקסט והנתונים המובנים. כאן, מאז הבנייה מראש (סעיף 7), גם דף שירות ודף השאלות מגיעים עם הטקסט והנתונים המובנים שלהם, בקובץ מוכן. הסיכום של כל שירות וכל השאלות והתשובות נשארו גם ב־llms.txt, מילה במילה, בשביל מנועים שקוראים אותו. גוגל כותבת שהחיפוש שלה מתעלם מהקובץ. **לשאול את רות:** עכשיו, כשהדפים בנויים מראש, להשאיר ב־llms.txt את כל התשובות, או רק קישור לכל דף, כמו באתר האירועים.
 32. **FAQPage, למרות שגוגל כבר לא מציגה אותו.** באתר האירועים שרות בנתה (30.6.2026) הבלוק נוסף כשגוגל כבר הפסיקה להציג שאלות ותשובות (מ־7.5.2026), וההערה בקוד שם עוד מתארת תוצאה כזו. כאן הבלוק נשאר כי הוא מתאר את מה שבדף לפי schema.org, ולפי גוגל (2023) נתונים מובנים שלא בשימוש לא מזיקים. ש"מנועים אחרים קוראים אותו" כתוב ב־ai-seo וב־seo-aeo-geo, ולא נבדק במסמך רשמי. אתרים לא רשמיים כתבו שגוגל עדיין משתמשת בו כדי להבין את הדף: זה לא נמצא במסמכים של גוגל, ולכן לא כתוב בסקיל. **לשאול את רות:** להשאיר את הבלוק, או לוותר עליו.
 33. **`Service` בלי פרטים שלא בדף.** באתר האירועים שרות בנתה ה־`provider` הוא `FoodEstablishment`, עם פרטי קשר ועיר. כאן `Organization`, באותו שם ובאותה כתובת כמו בדף האודות, ואזור וקהל רק אם היא אמרה אותם. `Service` לא ברשימה של גוגל, ולכן הוא לא נותן בגוגל תוצאה מיוחדת.
 34. **התוכן בקובץ בקוד, ולא במסד עם מסך ניהול.** באתר האירועים שרות בנתה השאלות נשמרו מההתחלה בטבלה במסד, עם מסך ניהול (`/admin/faq`), ודפי האירועים עברו למסד אחר כך. כאן עוד אין כניסה והרשאות, ולכן התוכן בקובץ אחד, ומשנים אותו דרך Claude.
