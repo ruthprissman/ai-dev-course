@@ -16,6 +16,7 @@
 | [`legal-pages`](skills/legal-pages/SKILL.md) | מדיניות פרטיות ותנאי שימוש למערכת, בכתובות `/privacy` ו-`/terms`, שנפתחות בלי כניסה, והודעת עוגיות לפי מה שהמערכת שומרת בדפדפן. שואל רק מה שחסר, מראה טיוטה, ובונה. גוגל דורשת את שני הדפים לפני שמפרסמים אפליקציה | מפגש 4 | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/legal-pages.zip) |
 | [`backup-and-keep-alive`](skills/backup-and-keep-alive/SKILL.md) | גיבוי מוצפן לדרייב בכל יום, ופרויקט Supabase החינמי שלא נרדם. שני שלבים, ושתי פעולות ב-GitHub: Keep Supabase Alive ו-Daily DB Backup. ביניהם הכנה בגוגל: אפליקציה מפורסמת ב-Google Cloud. מחליף את keep-my-data | מפגש 4 | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/backup-and-keep-alive.zip) |
 | [`seo`](skills/seo/SKILL.md) | רושם את המערכת בגוגל, ומכין לגוגל ולמנועי הבינה רק את הדפים הציבוריים: כותרת ותיאור לכל דף, robots.txt, מפת אתר ו-llms.txt, וכל המסכים הפנימיים מסומנים "לא לחיפוש". אחר כך רישום ב-Search Console, בקשה להוסיף את דף האודות, וייבוא ל-Bing | מפגש 4 | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/seo.zip) |
+| [`google-login`](skills/google-login/SKILL.md) | כניסה עם גוגל למערכת, באותו פרויקט ב-Google Cloud שנפתח לגיבוי: לקוח Web בגוגל, ספק Google ב-Supabase (שני מסכים שאתן עושות), כתובות חזרה למחשב ולייצור, וכפתור "כניסה עם Google" עם מי שמחוברת ויציאה. מי מורשית ומה כל אחת רואה: במפגש 5 | מפגש 4, או בפתיחה של מפגש 5 | [הורדה](https://github.com/ruthprissman/ai-dev-course/raw/main/zip/google-login.zip) |
 
 ## איך מתקינים Skill
 
